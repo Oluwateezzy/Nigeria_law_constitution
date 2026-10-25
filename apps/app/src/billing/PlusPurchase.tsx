@@ -95,9 +95,15 @@ export function PlusPurchase({
           onPress={() => {
             void buy();
           }}
-          style={{ minHeight: space.target, justifyContent: 'center' }}
+          style={{
+            minHeight: space.target,
+            justifyContent: 'center',
+            paddingVertical: space.unit,
+          }}
         >
-          <Text style={{ color: colors.accent }}>{copy.ask.subscribe}</Text>
+          <Text style={{ color: colors.accent, flexShrink: 1 }}>
+            {copy.ask.subscribe}
+          </Text>
         </Pressable>
       )}
       {Platform.OS !== 'web' ? (

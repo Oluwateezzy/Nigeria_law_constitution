@@ -86,6 +86,7 @@ export {
 } from './content-version';
 export type { HashSection } from './content-version';
 export { sha256 } from './sha256';
+export { sanitiseCrash } from './crash';
 export { parseSectionJump } from './section-jump';
 export type { SectionJump } from './section-jump';
 export { MoveGate, elapsedNow, stepIndex, swipeDelta } from './reader-nav';

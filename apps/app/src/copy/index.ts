@@ -131,6 +131,11 @@ export const copy = {
     exportNotes: 'Export notes',
     saveAccount: 'Save notes and conversations to your account',
     deviceCopy: 'Deleting the app deletes the notes on this device.',
+    about: 'About',
+    privacy: 'Privacy policy',
+    terms: 'Terms',
+    support: 'Support',
+    supportEmail: 'support@nigerialaw.app',
   },
   account: {
     title: 'Account',

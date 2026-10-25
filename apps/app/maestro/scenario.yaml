@@ -1,0 +1,12 @@
+appId: com.nigerialaw.reader.local
+---
+- launchApp
+- tapOn: Scenario
+- tapOn:
+    text: Continue
+    optional: true
+- tapOn: Describe what happened, in your own words
+- inputText: The court denied a fair hearing
+- tapOn: Explain
+- tapOn: Open
+- assertVisible: Right to fair hearing

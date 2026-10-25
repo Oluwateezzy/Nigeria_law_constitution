@@ -1,0 +1,6 @@
+appId: com.nigerialaw.reader.local
+---
+- launchApp
+- tapOn: Constitution
+- tapOn: Next section
+- assertVisible: The Federal Republic of Nigeria

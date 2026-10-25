@@ -1,0 +1,10 @@
+appId: com.nigerialaw.reader.local
+---
+- launchApp
+- tapOn: Constitution
+- tapOn: Ask about this section
+- tapOn:
+    text: Continue
+    optional: true
+- tapOn: Explain this in plain language
+- assertVisible: A labeled illustration for the test double.

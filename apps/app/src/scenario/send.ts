@@ -9,6 +9,7 @@ import {
   type ChatMessage,
   type ScenarioCandidate,
 } from '@nigeria-law/domain';
+import { aiDoubleEnabled, scriptedScenario } from '../ask/double';
 import { type AskHttp, type OwnKey, type SendResult } from '../ask/send';
 
 export type ScenarioSendResult = SendResult | { kind: 'weak' };
@@ -39,6 +40,15 @@ export async function sendScenario(input: {
   if (!input.online) return { kind: 'offline' };
   if (!input.ownKey && input.remaining <= 0) return { kind: 'quota' };
   const sections = retrieval.sections;
+  if (aiDoubleEnabled()) {
+    const section = sections[0];
+    if (!section) return { kind: 'weak' };
+    return {
+      kind: 'answer',
+      counted: false,
+      answer: scriptedScenario(section),
+    };
+  }
   if (input.ownKey) {
     return sendOwnScenario(input.ownKey, sections, input.messages, input.http);
   }

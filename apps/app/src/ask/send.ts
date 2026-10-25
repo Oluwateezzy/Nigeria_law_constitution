@@ -10,6 +10,7 @@ import {
   type OwnKeyProvider,
   type PromptSection,
 } from '@nigeria-law/domain';
+import { aiDoubleEnabled, scriptedProvision } from './double';
 
 export type AskHttp = (request: {
   url: string;
@@ -93,6 +94,13 @@ export async function sendProvision(input: {
   if (!input.disclosed) return { kind: 'disclosure' };
   if (!input.online) return { kind: 'offline' };
   if (!input.ownKey && input.remaining <= 0) return { kind: 'quota' };
+  if (aiDoubleEnabled()) {
+    return {
+      kind: 'answer',
+      counted: false,
+      answer: scriptedProvision(input.section),
+    };
+  }
   if (input.ownKey) {
     return sendWithOwnKey(
       input.ownKey,

@@ -338,10 +338,17 @@ export function ScenarioScreen() {
             onPress={() => {
               void explain(draft);
             }}
-            style={{ minHeight: space.target, justifyContent: 'center' }}
+            style={{
+              minHeight: space.target,
+              justifyContent: 'center',
+              paddingVertical: space.unit,
+            }}
           >
             <Text
-              style={{ color: canExplain ? colors.accent : colors.inkMuted }}
+              style={{
+                color: canExplain ? colors.accent : colors.inkMuted,
+                flexShrink: 1,
+              }}
             >
               {copy.scenario.explain}
             </Text>

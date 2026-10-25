@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useColorScheme, View } from 'react-native';
 import '@/account/crypto-polyfill';
 import { AuthProvider } from '@/account/AuthProvider';
+import { CrashBoundary } from '@/crash/CrashBoundary';
 import { PlusAlias } from '@/billing/PlusAlias';
 import { NotesProvider } from '@/notes/NotesProvider';
 import { PreferencesProvider } from '@/persistence/PreferencesProvider';
@@ -31,18 +32,20 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <PreferencesProvider>
-        <SearchProvider>
-          <AuthProvider>
-            <PlusAlias />
-            <NotesProvider>
-              <SyncProvider>
-                <ThemedStack />
-              </SyncProvider>
-            </NotesProvider>
-          </AuthProvider>
-        </SearchProvider>
-      </PreferencesProvider>
+      <CrashBoundary>
+        <PreferencesProvider>
+          <SearchProvider>
+            <AuthProvider>
+              <PlusAlias />
+              <NotesProvider>
+                <SyncProvider>
+                  <ThemedStack />
+                </SyncProvider>
+              </NotesProvider>
+            </AuthProvider>
+          </SearchProvider>
+        </PreferencesProvider>
+      </CrashBoundary>
     </ThemeProvider>
   );
 }

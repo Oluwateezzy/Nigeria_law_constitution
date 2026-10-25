@@ -1,0 +1,7 @@
+appId: com.nigerialaw.reader.local
+---
+- launchApp
+- tapOn: Search the Constitution and laws
+- inputText: supremacy
+- tapOn: Supremacy of the Constitution
+- assertVisible: Supremacy of the Constitution

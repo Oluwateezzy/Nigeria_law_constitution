@@ -384,9 +384,16 @@ function AskBody({
             onPress={() => {
               void ask(draft);
             }}
-            style={{ minHeight: space.target, justifyContent: 'center' }}
+            style={{
+              minHeight: space.target,
+              justifyContent: 'center',
+              paddingVertical: space.unit,
+              flexShrink: 1,
+            }}
           >
-            <Text style={{ color: colors.accent }}>{copy.ask.send}</Text>
+            <Text style={{ color: colors.accent, flexShrink: 1 }}>
+              {copy.ask.send}
+            </Text>
           </Pressable>
         </View>
       )}

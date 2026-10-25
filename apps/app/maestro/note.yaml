@@ -1,0 +1,9 @@
+appId: com.nigerialaw.reader.local
+---
+- launchApp
+- tapOn: Constitution
+- tapOn: Note on this section
+- tapOn: Note
+- inputText: Pilot note
+- tapOn: Done
+- assertNotVisible: Sign in

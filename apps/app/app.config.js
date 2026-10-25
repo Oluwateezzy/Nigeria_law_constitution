@@ -21,6 +21,12 @@ module.exports = ({ config }) => ({
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
+  backgroundColor: '#F6F3EC',
+  splash: {
+    image: './assets/splash-icon.png',
+    resizeMode: 'contain',
+    backgroundColor: '#F6F3EC',
+  },
   ios: {
     supportsTablet: true,
     bundleIdentifier: bundleIdentifiers[variant],

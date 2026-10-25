@@ -1,5 +1,6 @@
+import { shippingInstruments } from '@nigeria-law/content';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { useAccount } from '@/account/AuthProvider';
 import { Screen } from '@/components/Screen';
 import { TopBar } from '@/components/TopBar';
@@ -189,6 +190,58 @@ export default function SettingsScreen() {
             {label}
           </Text>
         ) : null}
+        <Text
+          accessibilityRole="header"
+          style={{
+            marginTop: space.unit * 6,
+            color: colors.ink,
+            fontSize: typeScale.heading.fontSize,
+            lineHeight: typeScale.heading.lineHeight,
+          }}
+        >
+          {copy.settings.about}
+        </Text>
+        {shippingInstruments().map((item) => (
+          <Text
+            key={item.id}
+            style={{
+              marginTop: space.unit * 3,
+              color: colors.ink,
+              fontSize: typeScale.ui.fontSize,
+              lineHeight: typeScale.ui.lineHeight,
+            }}
+          >
+            {`${item.shortTitle}\n${item.contentVersion}\n${item.legalTextHash}\n${item.source.name}`}
+          </Text>
+        ))}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={copy.settings.privacy}
+          onPress={() => router.push('/settings/privacy')}
+          style={{ minHeight: space.target, justifyContent: 'center' }}
+        >
+          <Text style={{ color: colors.accent }}>{copy.settings.privacy}</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={copy.settings.terms}
+          onPress={() => router.push('/settings/terms')}
+          style={{ minHeight: space.target, justifyContent: 'center' }}
+        >
+          <Text style={{ color: colors.accent }}>{copy.settings.terms}</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel={copy.settings.support}
+          onPress={() => {
+            void Linking.openURL(`mailto:${copy.settings.supportEmail}`);
+          }}
+          style={{ minHeight: space.target, justifyContent: 'center' }}
+        >
+          <Text style={{ color: colors.accent }}>
+            {`${copy.settings.support} ${copy.settings.supportEmail}`}
+          </Text>
+        </Pressable>
         <Text
           style={{
             marginTop: space.unit * 2,
