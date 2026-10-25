@@ -6,6 +6,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme, View } from 'react-native';
+import { NotesProvider } from '@/notes/NotesProvider';
 import { PreferencesProvider } from '@/persistence/PreferencesProvider';
 import { SearchProvider } from '@/search/SearchProvider';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
@@ -28,7 +29,9 @@ export default function RootLayout() {
     <ThemeProvider>
       <PreferencesProvider>
         <SearchProvider>
-          <ThemedStack />
+          <NotesProvider>
+            <ThemedStack />
+          </NotesProvider>
         </SearchProvider>
       </PreferencesProvider>
     </ThemeProvider>

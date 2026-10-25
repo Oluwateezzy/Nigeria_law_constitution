@@ -29,6 +29,7 @@ import { SectionHeader } from '@/components/SectionHeader';
 import { TextField } from '@/components/TextField';
 import { TopBar } from '@/components/TopBar';
 import { copy } from '@/copy';
+import { useNotes } from '@/notes/NotesProvider';
 import { usePreferences } from '@/persistence/PreferencesProvider';
 import { readerPan, setSwipeHandler } from '@/reader/gesture';
 import { parseReaderUrl, readerHref } from '@/reader/linking';
@@ -104,6 +105,7 @@ function SectionReader({
   const current = located[routeIndex]!;
   const { colors, motionDuration } = useTheme();
   const { textSize, savePosition } = usePreferences();
+  const { openSection, noteFilled } = useNotes();
   const insets = useSafeAreaInsets();
   const [jumpValue, setJumpValue] = useState('');
   const [jumpError, setJumpError] = useState<string | null>(null);
@@ -356,9 +358,9 @@ function SectionReader({
                   textSize={textSize}
                   onLineLayout={(lineAnchor, y) => {
                     offsets.current.set(
-                    offsetKey(current.section.id, lineAnchor),
-                    y,
-                  );
+                      offsetKey(current.section.id, lineAnchor),
+                      y,
+                    );
                     if (lineAnchor === anchor) {
                       scrollToAnchor(lineAnchor);
                     }
@@ -381,8 +383,15 @@ function SectionReader({
         <ReaderBar
           atStart={routeIndex === 0}
           atEnd={routeIndex === located.length - 1}
+          noteFilled={noteFilled(current.section.id)}
           onPrevious={() => move(-1)}
           onNext={() => move(1)}
+          onNote={() =>
+            openSection({
+              sectionId: current.section.id,
+              instrumentId,
+            })
+          }
         />
       </View>
     </View>

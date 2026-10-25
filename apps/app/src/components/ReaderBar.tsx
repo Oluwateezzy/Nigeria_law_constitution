@@ -17,15 +17,19 @@ const labels = {
 type ReaderBarProps = {
   atStart: boolean;
   atEnd: boolean;
+  noteFilled?: boolean;
   onPrevious: () => void;
   onNext: () => void;
+  onNote?: () => void;
 };
 
 export function ReaderBar({
   atStart,
   atEnd,
+  noteFilled = false,
   onPrevious,
   onNext,
+  onNote,
 }: ReaderBarProps) {
   const { colors } = useTheme();
   const actions = readerBarActions({ atStart, atEnd });
@@ -38,12 +42,18 @@ export function ReaderBar({
             ? onPrevious
             : action.id === 'next'
               ? onNext
-              : undefined;
+              : action.id === 'note'
+                ? onNote
+                : undefined;
+        const label =
+          action.id === 'note' && noteFilled
+            ? copy.reader.noteSavedLabel
+            : text.label;
         return (
           <Pressable
             key={action.id}
             accessibilityRole="button"
-            accessibilityLabel={text.label}
+            accessibilityLabel={label}
             accessibilityState={{ disabled: action.disabled }}
             disabled={action.disabled}
             onPress={onPress}
@@ -56,16 +66,36 @@ export function ReaderBar({
               opacity: action.disabled ? 0.35 : 1,
             }}
           >
-            <Text
-              numberOfLines={1}
+            <View
               style={{
-                color: colors.ink,
-                fontSize: typeScale.ui.fontSize,
-                lineHeight: typeScale.ui.lineHeight,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: space.unit,
               }}
             >
-              {text.title}
-            </Text>
+              <Text
+                numberOfLines={1}
+                style={{
+                  color: colors.ink,
+                  fontSize: typeScale.ui.fontSize,
+                  lineHeight: typeScale.ui.lineHeight,
+                }}
+              >
+                {text.title}
+              </Text>
+              {action.id === 'note' && noteFilled ? (
+                <View
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: colors.accent,
+                  }}
+                />
+              ) : null}
+            </View>
           </Pressable>
         );
       })}

@@ -38,7 +38,16 @@ export const copy = {
     empty: 'A place to describe a situation is on its way.',
   },
   notes: {
-    empty: 'A place to keep notes is on its way.',
+    empty: 'Open a section and tap Note.',
+    new: 'New',
+    done: 'Done',
+    delete: 'Delete',
+    deleteTitle: 'Delete this note?',
+    deleteBody: 'This removes the note from this device.',
+    keep: 'Keep',
+    unattached: 'On their own',
+    field: 'Note',
+    sectionLink: 'Section',
   },
   reader: {
     empty: 'The reader is on its way.',
@@ -50,6 +59,7 @@ export const copy = {
     nextLabel: 'Next section',
     askLabel: 'Ask about this section',
     noteLabel: 'Note on this section',
+    noteSavedLabel: 'Note on this section, saved',
     jumpLabel: 'Jump to section',
     jumpError: 'No section with that number.',
     unknown: 'This section is not in the loaded text.',
@@ -66,5 +76,6 @@ export const copy = {
     textSmaller: 'Smaller',
     textDefault: 'Default',
     textLarger: 'Larger',
+    exportNotes: 'Export notes',
   },
 } as const;

@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { ensureNotesTable } from '@/notes/repository';
 import type { SqlDatabase } from './driver';
 import { openExpoSearchDatabase } from './expo';
 import { ensureIndex, search as runSearch, searchTimings } from './repository';
@@ -24,6 +25,7 @@ declare global {
 type SearchValue = {
   ready: boolean;
   buildMs: number | null;
+  database: () => SqlDatabase | null;
   search: (
     query: string,
     instrumentId?: string | null,
@@ -50,6 +52,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
           searchRows(instruments, aliases),
           bundledIndexKey(instruments, aliases),
         );
+        await ensureNotesTable(db);
         if (!mounted) return;
         dbRef.current = db;
         const ms = elapsedNow() - started;
@@ -84,9 +87,11 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const database = useCallback(() => dbRef.current, []);
+
   const value = useMemo(
-    () => ({ ready, buildMs, search }),
-    [buildMs, ready, search],
+    () => ({ ready, buildMs, database, search }),
+    [buildMs, database, ready, search],
   );
 
   return (

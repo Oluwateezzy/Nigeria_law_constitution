@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readerBarActions } from './bar';
 
 describe('reader bar', () => {
-  it('keeps Ask and Note inactive and disables the ends', () => {
+  it('keeps Ask inactive, leaves Note available, and disables the ends', () => {
     expect(
       readerBarActions({ atStart: true, atEnd: false }).map((item) => item.id),
     ).toEqual(['previous', 'ask', 'note', 'next']);
@@ -10,7 +10,7 @@ describe('reader bar', () => {
     expect(atStart.find((item) => item.id === 'previous')?.disabled).toBe(true);
     expect(atStart.find((item) => item.id === 'next')?.disabled).toBe(false);
     expect(atStart.find((item) => item.id === 'ask')?.disabled).toBe(true);
-    expect(atStart.find((item) => item.id === 'note')?.disabled).toBe(true);
+    expect(atStart.find((item) => item.id === 'note')?.disabled).toBe(false);
     expect(
       readerBarActions({ atStart: false, atEnd: true }).find(
         (item) => item.id === 'next',

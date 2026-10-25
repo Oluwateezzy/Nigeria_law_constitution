@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { TopBar } from '@/components/TopBar';
 import { copy } from '@/copy';
+import { useNotes } from '@/notes/NotesProvider';
 import { type TextSizeStep } from '@/persistence/database';
 import { usePreferences } from '@/persistence/PreferencesProvider';
 import { space, type as typeScale } from '@/theme/tokens';
@@ -17,6 +18,7 @@ const steps: { step: TextSizeStep; label: string }[] = [
 export default function SettingsScreen() {
   const { colors } = useTheme();
   const { textSize, setTextSize } = usePreferences();
+  const { exportNotes } = useNotes();
   return (
     <Screen edges={['top', 'bottom']}>
       <TopBar
@@ -70,6 +72,28 @@ export default function SettingsScreen() {
           );
         })}
       </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={copy.settings.exportNotes}
+        onPress={() => {
+          void exportNotes();
+        }}
+        style={{
+          minHeight: space.target,
+          justifyContent: 'center',
+          marginTop: space.unit * 6,
+        }}
+      >
+        <Text
+          style={{
+            color: colors.accent,
+            fontSize: typeScale.ui.fontSize,
+            lineHeight: typeScale.ui.lineHeight,
+          }}
+        >
+          {copy.settings.exportNotes}
+        </Text>
+      </Pressable>
     </Screen>
   );
 }
