@@ -74,7 +74,9 @@ export function resetSearchTimings(): void {
   timings.length = 0;
 }
 
-export function reviewBadge(status: SearchResult['reviewStatus']): string | null {
+export function reviewBadge(
+  status: SearchResult['reviewStatus'],
+): string | null {
   return status === 'reviewed' ? null : 'Not yet reviewed';
 }
 
@@ -233,6 +235,12 @@ export async function search(
   return results;
 }
 
+function namedSectionNumber(raw: string): string | null {
+  if (parseQuery(raw).kind === 'section') return null;
+  const match = /(?:section|s)\.?\s*(\d+[A-Za-z]?)/i.exec(raw);
+  return match?.[1] ?? null;
+}
+
 async function collect(
   db: SqlDatabase,
   parsed: ParsedQuery,
@@ -243,12 +251,47 @@ async function collect(
   const filterParams = instrumentId ? [instrumentId] : [];
   const chosen: SearchResult[] = [];
   const seen = new Set<string>();
+  const namedNumber = instrumentId ? null : namedSectionNumber(parsed.raw);
+  if (namedNumber) {
+    const rows = (
+      await db.all(`SELECT ${columns} FROM sections_fts WHERE number = ?`, [
+        namedNumber,
+      ])
+    ).map(readStored);
+    const query = parsed.raw.toLowerCase();
+    const title = rows
+      .map((row) => row.short_title)
+      .filter(
+        (value) => value.length >= 3 && query.includes(value.toLowerCase()),
+      )
+      .sort((left, right) => right.length - left.length)[0];
+    if (title) {
+      for (const row of rows) {
+        if (row.short_title.toLowerCase() !== title.toLowerCase()) continue;
+        seen.add(row.id);
+        chosen.push(
+          toResult(
+            row,
+            {
+              kind: 'section',
+              number: namedNumber,
+              anchor: null,
+              raw: parsed.raw,
+            },
+            null,
+          ),
+        );
+      }
+    }
+  }
   if (parsed.kind === 'section') {
     const exact = constitutionFirst(
-      (await db.all(
-        `SELECT ${columns} FROM sections_fts WHERE number = ?${filter}`,
-        [parsed.number, ...filterParams],
-      )).map(readStored),
+      (
+        await db.all(
+          `SELECT ${columns} FROM sections_fts WHERE number = ?${filter}`,
+          [parsed.number, ...filterParams],
+        )
+      ).map(readStored),
     );
     for (const row of exact) {
       seen.add(row.id);

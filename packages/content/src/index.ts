@@ -7,7 +7,12 @@ export {
 } from './schema';
 export type { Block, Instrument, Section, Unit } from './schema';
 export { collectInstrumentSections } from './schema';
-export { contentVersionOf, shippingInstrument } from './load';
+export {
+  contentVersionOf,
+  findShippingInstrument,
+  shippingInstrument,
+  shippingInstruments,
+} from './load';
 export { findSection, locateSections, readerPathLabel } from './walk';
 export type { LocatedSection } from './walk';
 export {
@@ -21,9 +26,5 @@ export type { ResolvedJump } from './resolve-jump';
 export { registryEntries } from './registry';
 export type { RegistryEntry } from './registry';
 export { exampleInstrument, parsedExampleInstrument } from './fixture';
-export {
-  aliasList,
-  missingAliasTargets,
-  relevanceQueries,
-} from './aliases';
+export { aliasList, missingAliasTargets, relevanceQueries } from './aliases';
 export type { Alias, RelevanceQuery } from './aliases';

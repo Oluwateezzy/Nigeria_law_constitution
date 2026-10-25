@@ -9,7 +9,11 @@ import {
   makeContentVersion,
 } from '@nigeria-law/domain';
 import { extractTocEntries, readConstitutionSource } from './encode/build';
-import { contentVersionOf, shippingInstrument } from './load';
+import {
+  contentVersionOf,
+  shippingInstrument,
+  shippingInstruments,
+} from './load';
 import {
   collectInstrumentSections,
   instrumentSchema,
@@ -206,6 +210,32 @@ export function checkCorpusFiles(): string[] {
   });
   if (contentVersionOf() !== instrument.contentVersion) {
     issues.push('contentVersionOf does not return the instrument version');
+  }
+  const bundled = shippingInstruments()
+    .map((item) => item.id)
+    .sort();
+  const shipping = registry.instruments
+    .filter((entry) => entry.shipping === true)
+    .map((entry) => entry.id)
+    .sort();
+  if (bundled.join('\n') !== shipping.join('\n')) {
+    issues.push('bundled ids do not match the registry shipping list');
+  }
+  for (const entry of registry.instruments) {
+    if (entry.shipping !== true && bundled.includes(entry.id)) {
+      issues.push(`draft id ${entry.id} is in the production bundle`);
+    }
+    if (entry.shipping === true && !bundled.includes(entry.id)) {
+      issues.push(`${entry.id} is shipping without a corpus file`);
+    }
+  }
+  for (const item of shippingInstruments()) {
+    if (item.kind === 'act' && item.extent.trim().length === 0) {
+      issues.push(`${item.id} is shipping with an empty extent`);
+    }
+    if (item.review.status !== 'reviewed') {
+      issues.push(`${item.id} is in the production bundle without review`);
+    }
   }
   return issues;
 }

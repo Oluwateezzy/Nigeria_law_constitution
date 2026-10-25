@@ -111,6 +111,18 @@ describe('search index', () => {
     );
   });
 
+  it('returns a named Act section before the Constitution', async () => {
+    const rows = searchRows([shippingInstrument(), exampleInstrument()], []);
+    const db = openNodeDatabase();
+    await ensureIndex(db, rows, 'named-act');
+    const named = await search(db, 'Example section 36');
+    expect(named[0]?.sectionId).toBe('example:s:36');
+    expect(named[0]?.instrumentId).toBe('example');
+    const bare = await search(db, '36');
+    expect(bare[0]?.instrumentId).toBe('cfrn-1999');
+    expect(bare[0]?.sectionId).toBe('cfrn-1999:s:36');
+  });
+
   it('marks an unreviewed instrument and leaves the Constitution unmarked', async () => {
     const rows = searchRows(
       [shippingInstrument(), exampleInstrument()],

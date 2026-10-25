@@ -1,8 +1,9 @@
 import {
+  findShippingInstrument,
   locateSections,
   readerPathLabel,
   resolveSectionJump,
-  shippingInstrument,
+  type Instrument,
   type LocatedSection,
 } from '@nigeria-law/content';
 import { MoveGate, elapsedNow } from '@nigeria-law/domain';
@@ -51,16 +52,16 @@ export function ReaderScreen() {
   const instrumentId = firstParam(params.instrumentId);
   const sectionKey = firstParam(params.sectionKey);
   const paramAnchor = firstParam(params.anchor);
-  const instrument = shippingInstrument();
+  const instrument = findShippingInstrument(instrumentId);
   const located = useMemo(
-    () => (instrument.id === instrumentId ? locateSections(instrument) : []),
-    [instrument, instrumentId],
+    () => (instrument ? locateSections(instrument) : []),
+    [instrument],
   );
   const routeIndex = located.findIndex(
     (item) => item.section.number === sectionKey,
   );
 
-  if (instrument.id !== instrumentId) {
+  if (!instrument) {
     return (
       <MissingSection
         title={copy.reader.library}
@@ -83,7 +84,7 @@ export function ReaderScreen() {
 
   return (
     <SectionReader
-      instrumentId={instrumentId}
+      instrument={instrument}
       sectionKey={sectionKey}
       paramAnchor={paramAnchor}
       located={located}
@@ -93,19 +94,18 @@ export function ReaderScreen() {
 }
 
 function SectionReader({
-  instrumentId,
+  instrument,
   sectionKey,
   paramAnchor,
   located,
   routeIndex,
 }: {
-  instrumentId: string;
+  instrument: Instrument;
   sectionKey: string;
   paramAnchor: string;
   located: LocatedSection[];
   routeIndex: number;
 }) {
-  const instrument = shippingInstrument();
   const current = located[routeIndex]!;
   const { colors, motionDuration } = useTheme();
   const { textSize, savePosition } = usePreferences();
@@ -170,12 +170,12 @@ function SectionReader({
     if (Platform.OS !== 'web') {
       return;
     }
-    const href = readerHref(instrumentId, sectionKey, anchor);
+    const href = readerHref(instrument.id, sectionKey, anchor);
     const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     if (currentUrl !== href) {
       window.history.replaceState(window.history.state, '', href);
     }
-  }, [anchor, instrumentId, sectionKey]);
+  }, [anchor, instrument.id, sectionKey]);
 
   useEffect(() => {
     if (previousRoute.current === routeIndex) {
@@ -382,6 +382,18 @@ function SectionReader({
                       alignSelf: 'center',
                     }}
                   >
+                    {instrument.kind === 'act' ? (
+                      <Text
+                        style={{
+                          marginBottom: space.unit * 3,
+                          color: colors.inkMuted,
+                          fontSize: typeScale.ui.fontSize,
+                          lineHeight: typeScale.ui.lineHeight,
+                        }}
+                      >
+                        {instrument.extent}
+                      </Text>
+                    ) : null}
                     <SectionHeader
                       path={readerPathLabel(
                         instrument.shortTitle,
@@ -427,7 +439,7 @@ function SectionReader({
               onNote={() =>
                 openSection({
                   sectionId: current.section.id,
-                  instrumentId,
+                  instrumentId: instrument.id,
                 })
               }
             />

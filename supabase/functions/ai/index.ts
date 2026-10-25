@@ -2,7 +2,6 @@ import {
   findSection,
   readerPathLabel,
 } from '../../../packages/content/src/walk.ts';
-import type { Instrument } from '../../../packages/content/src/schema.ts';
 import {
   completeHostedProvision,
   completeHostedScenario,
@@ -13,11 +12,11 @@ import {
 import { lagosDay } from '../../../packages/domain/src/lagos-day.ts';
 import { hostedModelId } from '../../../packages/domain/src/own-key.ts';
 import { sha256 } from '../../../packages/domain/src/sha256.ts';
-import instrument from '../../../packages/content/corpus/cfrn-1999.js';
+import { shippingInstruments } from '../../../packages/content/src/load.ts';
 
 type QuotaKind = 'install' | 'user' | 'ip';
 
-const loadedInstrument = instrument as Instrument;
+const loadedInstruments = shippingInstruments();
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -70,10 +69,6 @@ Deno.serve(async (request) => {
   }
   const logs: ProxyLog[] = [];
   const lane = await laneFor(env, userId);
-  const located =
-    body.kind === 'provision' && body.sectionId
-      ? findSection(loadedInstrument, body.sectionId)
-      : null;
   const result =
     body.kind === 'scenario'
       ? await completeHostedScenario(
@@ -83,7 +78,8 @@ Deno.serve(async (request) => {
             userId,
             ip,
             lane,
-            contentVersion: loadedInstrument.contentVersion,
+            contentVersion:
+              loadedInstruments[0]?.contentVersion ?? body.contentVersion ?? '',
             sectionIds: scenarioIds,
             messages: body.messages ?? [],
             now,
@@ -102,26 +98,15 @@ Deno.serve(async (request) => {
             userId,
             ip,
             lane,
-            contentVersion: loadedInstrument.contentVersion,
+            contentVersion:
+              body.contentVersion ?? loadedInstruments[0]?.contentVersion ?? '',
             sectionId: body.sectionId ?? '',
             messages: body.messages ?? [],
             now,
           },
           {
-            loadSection: () => {
-              if (!located) return null;
-              return {
-                id: located.section.id,
-                plainText: located.section.plainText,
-                path: readerPathLabel(
-                  loadedInstrument.shortTitle,
-                  located.trail,
-                ),
-                citation: loadedInstrument.citation,
-                extent: loadedInstrument.extent,
-                contentVersion: loadedInstrument.contentVersion,
-              };
-            },
+            loadSection: () =>
+              body.sectionId ? loadedSection(body.sectionId) : null,
             provider: openAiProvider(),
             book,
             logs,
@@ -156,16 +141,24 @@ Deno.serve(async (request) => {
   );
 });
 
+function findLoaded(id: string) {
+  for (const instrument of loadedInstruments) {
+    const located = findSection(instrument, id);
+    if (located) return { instrument, located };
+  }
+  return null;
+}
+
 function loadedSection(id: string) {
-  const located = findSection(loadedInstrument, id);
-  if (!located) return null;
+  const found = findLoaded(id);
+  if (!found) return null;
   return {
-    id: located.section.id,
-    plainText: located.section.plainText,
-    path: readerPathLabel(loadedInstrument.shortTitle, located.trail),
-    citation: loadedInstrument.citation,
-    extent: loadedInstrument.extent,
-    contentVersion: loadedInstrument.contentVersion,
+    id: found.located.section.id,
+    plainText: found.located.section.plainText,
+    path: readerPathLabel(found.instrument.shortTitle, found.located.trail),
+    citation: found.instrument.citation,
+    extent: found.instrument.extent,
+    contentVersion: found.instrument.contentVersion,
   };
 }
 

@@ -1,7 +1,7 @@
 import {
   findSection,
   registryEntries,
-  shippingInstrument,
+  shippingInstruments,
 } from '@nigeria-law/content';
 import {
   router,
@@ -25,7 +25,11 @@ import { SearchResultRow } from '@/components/SearchResultRow';
 import { TopBar } from '@/components/TopBar';
 import { copy } from '@/copy';
 import { usePreferences } from '@/persistence/PreferencesProvider';
-import { catalogueRows, continueSectionLabel } from '@/reader/library';
+import {
+  actRowDetail,
+  catalogueRows,
+  continueSectionLabel,
+} from '@/reader/library';
 import { readerHref } from '@/reader/linking';
 import { useSearch } from '@/search/SearchProvider';
 import type { SearchResult } from '@/search/repository';
@@ -39,9 +43,17 @@ function firstParam(value: string | string[] | undefined): string {
 
 export default function LibraryScreen() {
   const { colors } = useTheme();
-  const instrument = shippingInstrument();
+  const instruments = shippingInstruments();
   const catalogue = catalogueRows({
-    instruments: [instrument],
+    instruments: instruments.map((item) => ({
+      id: item.id,
+      kind: item.kind,
+      shortTitle: item.shortTitle,
+      versionLabel: item.versionLabel,
+      year: item.year,
+      extent: item.extent,
+      reviewStatus: item.review.status,
+    })),
     registry: registryEntries(),
   });
   const { ready, position, refreshPosition, recentQueries, rememberSearch } =
@@ -53,8 +65,16 @@ export default function LibraryScreen() {
   }>();
   const fromInstrument = firstParam(params.fromInstrument);
   const presetQuery = firstParam(params.q);
-  const [query, setQuery] = useState('');
-  const [focused, setFocused] = useState(false);
+  const [query, setQuery] = useState(presetQuery);
+  const [focused, setFocused] = useState(presetQuery.length > 0);
+  const [appliedPreset, setAppliedPreset] = useState(presetQuery);
+  if (presetQuery !== appliedPreset) {
+    setAppliedPreset(presetQuery);
+    if (presetQuery) {
+      setQuery(presetQuery);
+      setFocused(true);
+    }
+  }
   const [limitedInstrument, setLimitedInstrument] = useState<string | null>(
     null,
   );
@@ -96,11 +116,6 @@ export default function LibraryScreen() {
     inputRef.current?.focus();
   }, [fromInstrument]);
   useEffect(() => {
-    if (!presetQuery) return;
-    setQuery(presetQuery);
-    setFocused(true);
-  }, [presetQuery]);
-  useEffect(() => {
     if (!searchIndex.ready) return;
     const pending = Promise.resolve().then(() => {
       runSearch(query, limitToInstrument);
@@ -109,9 +124,11 @@ export default function LibraryScreen() {
       void pending;
     };
   }, [limitToInstrument, query, runSearch, searchIndex.ready]);
-  const located = position
-    ? findSection(instrument, position.sectionId)
+  const reading = position
+    ? instruments.find((item) => findSection(item, position.sectionId))
     : undefined;
+  const located =
+    reading && position ? findSection(reading, position.sectionId) : null;
   const searching = query.trim().length > 0;
   const showRecent = focused && !searching && recentQueries.length > 0;
 
@@ -266,7 +283,7 @@ export default function LibraryScreen() {
             {ready && position ? (
               <ContinueCard
                 kicker={copy.library.continue}
-                title={instrument.shortTitle}
+                title={reading?.shortTitle ?? ''}
                 detail={continueSectionLabel(
                   located
                     ? {
@@ -277,12 +294,12 @@ export default function LibraryScreen() {
                   position.sectionId,
                 )}
                 onPress={() => {
-                  if (!located) {
+                  if (!located || !reading) {
                     return;
                   }
                   router.push(
                     readerHref(
-                      instrument.id,
+                      reading.id,
                       located.section.number,
                       position.anchor,
                     ) as Href,
@@ -315,7 +332,7 @@ export default function LibraryScreen() {
                   <InstrumentRow
                     key={item.id}
                     title={item.shortTitle}
-                    detail={item.versionLabel}
+                    detail={actRowDetail(item)}
                     onPress={() => router.push(`/read/${item.id}` as Href)}
                   />
                 ))}

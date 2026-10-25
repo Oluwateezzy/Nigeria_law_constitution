@@ -1,4 +1,4 @@
-import { aliasList, shippingInstrument } from '@nigeria-law/content';
+import { aliasList, shippingInstruments } from '@nigeria-law/content';
 import { elapsedNow } from '@nigeria-law/domain';
 import {
   createContext,
@@ -46,7 +46,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     openExpoSearchDatabase()
       .then(async (db) => {
         if (!mounted) return;
-        const instruments = [shippingInstrument()];
+        const instruments = [...shippingInstruments()];
         const aliases = aliasList();
         await ensureIndex(
           db,

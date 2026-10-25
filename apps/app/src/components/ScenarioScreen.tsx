@@ -1,4 +1,8 @@
-import { locateSections, shippingInstrument } from '@nigeria-law/content';
+import {
+  locateSections,
+  shippingInstrument,
+  shippingInstruments,
+} from '@nigeria-law/content';
 import { citationRemovedLimit } from '@nigeria-law/domain';
 import { router, type Href } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -36,19 +40,21 @@ export function ScenarioScreen() {
   const instrument = shippingInstrument();
   const catalog = useMemo(() => {
     const map = new Map<string, CardSection>();
-    for (const located of locateSections(instrument)) {
-      map.set(located.section.id, {
-        id: located.section.id,
-        instrumentId: instrument.id,
-        shortTitle: instrument.shortTitle,
-        number: located.section.number,
-        heading: located.section.heading ?? '',
-        plainText: located.section.plainText,
-        blocks: located.section.blocks,
-      });
+    for (const item of shippingInstruments()) {
+      for (const located of locateSections(item)) {
+        map.set(located.section.id, {
+          id: located.section.id,
+          instrumentId: item.id,
+          shortTitle: item.shortTitle,
+          number: located.section.number,
+          heading: located.section.heading ?? '',
+          plainText: located.section.plainText,
+          blocks: located.section.blocks,
+        });
+      }
     }
     return map;
-  }, [instrument]);
+  }, []);
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState<ThreadMessage[]>([]);
   const [threads, setThreads] = useState<ScenarioThread[]>([]);

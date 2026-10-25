@@ -1,3 +1,60 @@
 {
-  "instruments": [{ "id": "cfrn-1999", "shipping": true }]
+  "instruments": [
+    { "id": "cfrn-1999", "shipping": true },
+    {
+      "id": "electoral-act",
+      "shipping": false,
+      "hold": "Not in the production bundle. The consolidation year and the source text are not in this repo, so extent and reuse are unchecked."
+    },
+    {
+      "id": "evidence-act",
+      "shipping": false,
+      "hold": "Not in the production bundle. No sourced federal text is in this repo, so extent and reuse are unchecked."
+    },
+    {
+      "id": "acja",
+      "shipping": false,
+      "hold": "Not in the production bundle. No sourced text is in this repo, so it is not labeled as replacing State criminal procedure."
+    },
+    {
+      "id": "police-act",
+      "shipping": false,
+      "hold": "Not in the production bundle. The Act year and the source text are not in this repo."
+    },
+    {
+      "id": "cybercrimes-act",
+      "shipping": false,
+      "hold": "Not in the production bundle. The short title has not been checked against a source in this repo."
+    },
+    {
+      "id": "freedom-of-information-act",
+      "shipping": false,
+      "hold": "Not in the production bundle. Extent has not been checked against a source in this repo."
+    },
+    {
+      "id": "land-use-act",
+      "shipping": false,
+      "hold": "Not in the production bundle. Extent has not been checked against a source in this repo."
+    },
+    {
+      "id": "labour-act",
+      "shipping": false,
+      "hold": "Not in the production bundle. The workers the Act covers have not been checked against a source in this repo."
+    },
+    {
+      "id": "criminal-code-act",
+      "shipping": false,
+      "hold": "Not in the production bundle. Extent has not been compared with a source, so the id is not labeled as the criminal law of every State."
+    },
+    {
+      "id": "penal-code-act",
+      "shipping": false,
+      "hold": "Dropped from this phase's bundle. The popular name is often a Northern States code, and no sourced federal Act was checked in this repo."
+    },
+    {
+      "id": "violence-against-persons-act",
+      "shipping": false,
+      "hold": "Not in the production bundle. The territorial extent has not been compared with a source in this repo."
+    }
+  ]
 }

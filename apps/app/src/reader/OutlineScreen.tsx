@@ -1,6 +1,6 @@
 import {
+  findShippingInstrument,
   outlineModel,
-  shippingInstrument,
   type OutlineSection,
   type OutlineUnit,
 } from '@nigeria-law/content';
@@ -22,10 +22,10 @@ import { readerHref } from '@/reader/linking';
 export function OutlineScreen() {
   const params = useLocalSearchParams<{ instrumentId: string }>();
   const instrumentId = firstParam(params.instrumentId);
-  const instrument = shippingInstrument();
-  const units = outlineModel(instrument);
+  const instrument = findShippingInstrument(instrumentId);
+  const units = instrument ? outlineModel(instrument) : [];
 
-  if (instrument.id !== instrumentId) {
+  if (!instrument) {
     return (
       <Screen edges={['top', 'bottom']}>
         <TopBar

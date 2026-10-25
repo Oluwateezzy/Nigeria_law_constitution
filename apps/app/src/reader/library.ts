@@ -3,7 +3,19 @@ export type CatalogueInstrument = {
   kind: 'constitution' | 'act';
   shortTitle: string;
   versionLabel: string;
+  year: number;
+  extent: string;
+  reviewStatus: 'draft' | 'reviewed';
 };
+
+export function actRowDetail(item: {
+  year: number;
+  extent: string;
+  reviewStatus: 'draft' | 'reviewed';
+}): string {
+  const badge = item.reviewStatus === 'reviewed' ? '' : ' Not yet reviewed.';
+  return `${item.year}. ${item.extent}${badge}`;
+}
 
 export function catalogueRows(input: {
   instruments: readonly CatalogueInstrument[];
