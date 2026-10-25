@@ -19,15 +19,15 @@ Hosted explanations allow 5 requests per day in Africa/Lagos. Plus raises that t
 
 ## Tech stack
 
-| Area | Choice |
-| --- | --- |
-| Apps | Expo, Expo Router, TypeScript (iOS, Android, and web) |
-| Shared logic | `packages/domain` — search, citations, quota, prompts, sync merge |
-| Corpus | `packages/content` — reviewed legislative text and schema |
-| On-device data | SQLite with FTS5 |
-| Account and sync | Supabase Auth, Postgres, Row Level Security |
-| Hosted AI | Supabase Edge Function proxy |
-| Subscriptions | App Store and Google Play through RevenueCat; Stripe on web |
+| Area             | Choice                                                            |
+| ---------------- | ----------------------------------------------------------------- |
+| Apps             | Expo SDK 58, Expo Router, TypeScript (iOS, Android, and web)      |
+| Shared logic     | `packages/domain` — search, citations, quota, prompts, sync merge |
+| Corpus           | `packages/content` — reviewed legislative text and schema         |
+| On-device data   | SQLite with FTS5                                                  |
+| Account and sync | Supabase Auth, Postgres, Row Level Security                       |
+| Hosted AI        | Supabase Edge Function proxy                                      |
+| Subscriptions    | App Store and Google Play through RevenueCat; Stripe on web       |
 
 ## Project structure
 
@@ -41,24 +41,22 @@ supabase/functions/     AI proxy and billing webhooks
 
 The screen routes are Library (`/`), Scenario (`/scenario`), Notes (`/notes`), the reader (`/read/[instrumentId]/s/[sectionKey]`), and Settings.
 
+## Prerequisites
+
+- Node.js 24.22.1 (see `.nvmrc`)
+- pnpm 10.28.2
+- Xcode, to run the iOS app
+- Android Studio, to run the Android app
+
 ## Getting started
 
-The application is not in this repository yet, so there is nothing to install or run. The commands below are the workflow the app will use once it is added.
-
-### Prerequisites
-
-- Node.js, current LTS
-- pnpm
-- Xcode, for the iOS app
-- Android Studio, for the Android app
-
-### Install
-
 ```bash
+nvm install
+nvm use
 pnpm install
 ```
 
-### Run
+Run one client:
 
 ```bash
 pnpm ios
@@ -66,16 +64,24 @@ pnpm android
 pnpm web
 ```
 
-### Test
+The app opens on the Library screen.
+
+## Checks
 
 ```bash
 pnpm typecheck
+pnpm lint
 pnpm test
+pnpm scan-secrets
 ```
+
+`pnpm test` runs the domain sample tests, including the Lagos-day clock.
 
 ## Configuration
 
-Copy `.env.example` to a local env file when the app is added. The hosted model key, the Supabase service role, and the Stripe secret belong in server configuration only. A person's own API key is stored on the device and is not part of project configuration.
+Copy `apps/app/.env.example` for client values and `supabase/.env.example` for server values. The hosted model key, the Supabase service role, the Stripe secret, and the RevenueCat secret stay on the server. The map of every secret is in [apps/app/README.md](apps/app/README.md).
+
+`APP_VARIANT` is `local` by default. Preview uses a different bundle identifier from production.
 
 ## Corpus
 

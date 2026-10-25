@@ -18,6 +18,10 @@ web-build/
 *.log
 .DS_Store
 
+# TypeScript and Expo generated files
+*.tsbuildinfo
+expo-env.d.ts
+
 # Native build output
 ios/Pods/
 android/.gradle/

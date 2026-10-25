@@ -1,0 +1,28 @@
+{
+  "name": "nigeria-law",
+  "private": true,
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=24.3.0"
+  },
+  "scripts": {
+    "start": "pnpm --filter @nigeria-law/app start",
+    "ios": "pnpm --filter @nigeria-law/app ios",
+    "android": "pnpm --filter @nigeria-law/app android",
+    "web": "pnpm --filter @nigeria-law/app web",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "eslint .",
+    "test": "vitest run --config vitest.config.ts && pnpm -r --if-present test",
+    "scan-secrets": "node scripts/scan-secrets.mjs",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "eslint": "^9.39.1",
+    "eslint-config-expo": "~58.0.4",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}
