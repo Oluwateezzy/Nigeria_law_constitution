@@ -6,9 +6,15 @@ type TopBarProps = {
   title: string;
   actionLabel?: string;
   onAction?: () => void;
+  heading?: boolean;
 };
 
-export function TopBar({ title, actionLabel, onAction }: TopBarProps) {
+export function TopBar({
+  title,
+  actionLabel,
+  onAction,
+  heading = true,
+}: TopBarProps) {
   const { colors } = useTheme();
   return (
     <View
@@ -22,7 +28,7 @@ export function TopBar({ title, actionLabel, onAction }: TopBarProps) {
       }}
     >
       <Text
-        accessibilityRole="header"
+        accessibilityRole={heading ? 'header' : undefined}
         style={{
           flex: 1,
           color: colors.ink,

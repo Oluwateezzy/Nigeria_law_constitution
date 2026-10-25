@@ -3,7 +3,15 @@ import type { Instrument, Section, Unit } from './schema';
 export type LocatedSection = {
   section: Section;
   path: string;
+  trail: string[];
 };
+
+export function readerPathLabel(
+  shortTitle: string,
+  trail: readonly string[],
+): string {
+  return [shortTitle, ...trail].filter((part) => part.length > 0).join(' · ');
+}
 
 function unitLabel(unit: Unit): string {
   if (unit.kind === 'chapter' && unit.number)
@@ -36,7 +44,11 @@ export function locateSections(instrument: Instrument): LocatedSection[] {
           section.heading && section.heading !== unit.heading
             ? `${section.number}. ${section.heading}`
             : section.number;
-        located.push({ section, path: [...next, leaf].join(' / ') });
+        located.push({
+          section,
+          path: [...next, leaf].join(' / '),
+          trail: next,
+        });
       }
       if (unit.units) walk(unit.units, next);
     }

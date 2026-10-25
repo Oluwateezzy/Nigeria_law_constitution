@@ -23,6 +23,8 @@ export const copy = {
   },
   library: {
     constitutionEmpty: 'The Constitution is on its way.',
+    continue: 'Continue',
+    acts: 'Acts',
   },
   scenario: {
     empty: 'A place to describe a situation is on its way.',
@@ -32,10 +34,28 @@ export const copy = {
   },
   reader: {
     empty: 'The reader is on its way.',
+    previous: 'Previous',
+    next: 'Next',
+    ask: 'Ask',
+    note: 'Note',
+    previousLabel: 'Previous section',
+    nextLabel: 'Next section',
+    askLabel: 'Ask about this section',
+    noteLabel: 'Note on this section',
+    jumpLabel: 'Jump to section',
+    jumpError: 'No section with that number.',
+    unknown: 'This section is not in the loaded text.',
+    unknownInstrument: 'This instrument is not in the loaded text.',
+    outline: 'Outline',
+    library: 'Library',
   },
   settings: {
     title: 'Settings',
-    body: 'Preferences will live here.',
+    body: 'Text size changes the provision. The rest of the screen stays put.',
     close: 'Close',
+    textSize: 'Text size',
+    textSmaller: 'Smaller',
+    textDefault: 'Default',
+    textLarger: 'Larger',
   },
 } as const;

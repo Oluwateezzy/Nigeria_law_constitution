@@ -6,6 +6,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme, View } from 'react-native';
+import { PreferencesProvider } from '@/persistence/PreferencesProvider';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { palette } from '@/theme/tokens';
 
@@ -24,7 +25,9 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <ThemedStack />
+      <PreferencesProvider>
+        <ThemedStack />
+      </PreferencesProvider>
     </ThemeProvider>
   );
 }
