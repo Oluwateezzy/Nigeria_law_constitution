@@ -1,0 +1,25 @@
+# Local plan documents
+docsplan/
+
+# Dependencies
+node_modules/
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Logs and OS files
+*.log
+.DS_Store
+
+# Native build output
+ios/Pods/
+android/.gradle/
+android/app/build/
+android/build/
