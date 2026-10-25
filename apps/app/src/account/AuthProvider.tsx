@@ -25,6 +25,7 @@ WebBrowser.maybeCompleteAuthSession();
 type AccountValue = {
   configured: boolean;
   signedIn: boolean;
+  accessToken: string | null;
   label: string | null;
   gateway: SyncGateway | null;
   sendMagicLink: (email: string) => Promise<string | null>;
@@ -162,6 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       configured: client !== null,
       signedIn: session !== null,
+      accessToken: session?.access_token ?? null,
       label,
       gateway,
       sendMagicLink,

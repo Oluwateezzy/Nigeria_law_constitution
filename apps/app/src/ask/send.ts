@@ -33,13 +33,17 @@ export type AskAnswer = {
 export type SendResult =
   | { kind: 'disclosure' }
   | { kind: 'offline' }
-  | { kind: 'quota' }
+  | {
+      kind: 'quota';
+      quota?: { remaining: number; limit: number; resetsAt: string };
+    }
   | { kind: 'provider' }
   | {
       kind: 'answer';
       answer: AskAnswer;
       counted: boolean;
       quota?: { remaining: number; limit: number; resetsAt: string };
+      contentVersion?: string;
     };
 
 export async function validateOwnKey(
@@ -56,6 +60,14 @@ export async function validateOwnKey(
   return response.status === 200;
 }
 
+export async function retrySend(
+  previous: SendResult,
+  again: () => Promise<SendResult>,
+): Promise<SendResult> {
+  if (previous.kind !== 'provider') return previous;
+  return again();
+}
+
 export async function sendProvision(input: {
   ownKey: OwnKey | null;
   proxyUrl: string;
@@ -65,12 +77,19 @@ export async function sendProvision(input: {
   disclosed: boolean;
   online: boolean;
   remaining: number;
+  installId: string;
+  contentVersion: string;
 }): Promise<SendResult> {
   if (!input.disclosed) return { kind: 'disclosure' };
   if (!input.online) return { kind: 'offline' };
   if (!input.ownKey && input.remaining <= 0) return { kind: 'quota' };
   if (input.ownKey) {
-    return sendWithOwnKey(input.ownKey, input.section, input.messages, input.http);
+    return sendWithOwnKey(
+      input.ownKey,
+      input.section,
+      input.messages,
+      input.http,
+    );
   }
   const response = await input.http({
     url: input.proxyUrl,
@@ -78,15 +97,20 @@ export async function sendProvision(input: {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       kind: 'provision',
+      installId: input.installId,
+      contentVersion: input.contentVersion,
       sectionId: input.section.id,
       messages: input.messages,
     }),
   });
-  if (response.status === 429) return { kind: 'quota' };
+  if (response.status === 429) {
+    return { kind: 'quota', quota: readQuota(response.body) };
+  }
   if (response.status >= 400) return { kind: 'provider' };
   const payload = JSON.parse(response.body) as {
     message?: AskAnswer & { content: string };
     quota?: { remaining: number; limit: number; resetsAt: string };
+    contentVersion?: string;
   };
   if (!payload.message) return { kind: 'provider' };
   return {
@@ -94,7 +118,33 @@ export async function sendProvision(input: {
     counted: true,
     answer: payload.message,
     quota: payload.quota,
+    contentVersion: payload.contentVersion,
   };
+}
+
+function readQuota(
+  body: string,
+): { remaining: number; limit: number; resetsAt: string } | undefined {
+  try {
+    const payload = JSON.parse(body) as {
+      quota?: { remaining?: number; limit?: number; resetsAt?: string };
+    };
+    const quota = payload.quota;
+    if (
+      !quota ||
+      typeof quota.remaining !== 'number' ||
+      typeof quota.limit !== 'number'
+    ) {
+      return undefined;
+    }
+    return {
+      remaining: quota.remaining,
+      limit: quota.limit,
+      resetsAt: quota.resetsAt ?? '',
+    };
+  } catch {
+    return undefined;
+  }
 }
 
 async function sendWithOwnKey(
@@ -137,6 +187,9 @@ async function sendWithOwnKey(
   }
   try {
     const parsed = parseModelPayload(text);
+    if (prompt.illustrationRequired && !parsed.illustration?.trim()) {
+      return { kind: 'provider' };
+    }
     const checked = validateCitations(parsed.citations, [
       { sectionId: section.id, plainText: section.plainText },
     ]);

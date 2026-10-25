@@ -8,7 +8,8 @@ export async function readOwnKey(): Promise<OwnKey | null> {
   const raw = await readRaw();
   if (!raw) return null;
   const parsed = JSON.parse(raw) as OwnKey;
-  if (parsed.provider !== 'openai' && parsed.provider !== 'anthropic') return null;
+  if (parsed.provider !== 'openai' && parsed.provider !== 'anthropic')
+    return null;
   if (!parsed.secret) return null;
   return parsed;
 }

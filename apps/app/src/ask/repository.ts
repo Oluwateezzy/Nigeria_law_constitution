@@ -8,6 +8,7 @@ export type ThreadMessage = {
   content: string;
   citations: { sectionId: string; quote: string }[] | null;
   illustration: string | null;
+  limits: string[];
   createdAt: string;
 };
 
@@ -60,13 +61,16 @@ export async function listThreadMessages(
     const raw = text(row.citations);
     let citations: ThreadMessage['citations'] = null;
     let illustration: string | null = null;
+    let limits: string[] = [];
     if (raw) {
       const parsed = JSON.parse(raw) as {
         citations?: ThreadMessage['citations'];
         illustration?: string | null;
+        limits?: string[];
       };
       citations = parsed.citations ?? null;
       illustration = parsed.illustration ?? null;
+      limits = parsed.limits ?? [];
     }
     return {
       id: text(row.id),
@@ -75,6 +79,7 @@ export async function listThreadMessages(
       content: text(row.content),
       citations,
       illustration,
+      limits,
       createdAt: text(row.created_at),
     };
   });
@@ -89,6 +94,7 @@ export async function appendThreadMessage(
     content: string;
     citations?: ThreadMessage['citations'];
     illustration?: string | null;
+    limits?: string[];
     now: string;
   },
 ): Promise<ThreadMessage> {
@@ -119,6 +125,7 @@ export async function appendThreadMessage(
   const payload = JSON.stringify({
     citations: input.citations ?? null,
     illustration: input.illustration ?? null,
+    limits: input.limits ?? [],
   });
   await db.run(
     `INSERT INTO messages (id, thread_id, role, content, citations, created_at)
@@ -132,6 +139,7 @@ export async function appendThreadMessage(
     content: input.content,
     citations: input.citations ?? null,
     illustration: input.illustration ?? null,
+    limits: input.limits ?? [],
     createdAt: input.now,
   };
 }

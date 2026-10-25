@@ -8,6 +8,8 @@ The hosted vendor is OpenAI, model `gpt-4.1-mini`. It returns a JSON object with
 
 Set a hard monthly spend cap on the OpenAI project before the key is used. The cap is on the vendor account. This function does not raise it.
 
+Completed requests update `quota_usage` for the install, the signed-in user, and a hash of the caller address. `quota_folds` records that an install was folded into a user for that Lagos day. Apply `supabase/migrations/20261025190000_quota_ip.sql` before the first hosted request so those writes succeed. The service role does the writes. The client does not.
+
 Anonymous callers are allowed. `verify_jwt` is off for this function. Quota and citation checks run in `packages/domain`.
 
 Logs from `completeHostedProvision` keep status, token count, kind, content version, and a hash of the install id. They do not keep the question, the prompt, the section text, or the model output.

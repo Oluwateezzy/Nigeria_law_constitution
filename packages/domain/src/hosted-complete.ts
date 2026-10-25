@@ -1,6 +1,15 @@
-import { assemblePrompt, type ChatMessage, type PromptSection } from './assemble-prompt';
+import {
+  assemblePrompt,
+  type ChatMessage,
+  type PromptSection,
+} from './assemble-prompt';
 import { parseModelPayload } from './model-payload';
-import { QuotaBook, type QuotaLane, type QuotaSnapshot } from './quota';
+import {
+  countsAsRequest,
+  QuotaBook,
+  type QuotaLane,
+  type QuotaSnapshot,
+} from './quota';
 import { sha256 } from './sha256';
 import { citationRemovedLimit, validateCitations } from './validate-citations';
 
@@ -123,6 +132,9 @@ export async function completeHostedProvision(
     const completed = await deps.provider.complete(prompt);
     tokens = completed.tokens;
     parsed = parseModelPayload(completed.text);
+    if (prompt.illustrationRequired && !parsed.illustration?.trim()) {
+      throw new Error('illustration required');
+    }
   } catch {
     deps.logs.push(logLine(request, 502, tokens, loaded.contentVersion));
     return {
@@ -151,4 +163,19 @@ export async function completeHostedProvision(
       citations: checked.citations,
     },
   };
+}
+
+export async function retryHostedProvision(
+  previous: HostedResult,
+  request: HostedRequest,
+  deps: {
+    loadSection: (sectionId: string) => LoadedSection | null;
+    provider: ModelProvider;
+    book: QuotaBook;
+    logs: ProxyLog[];
+  },
+): Promise<HostedResult> {
+  if (previous.ok || previous.code !== 'provider_error') return previous;
+  if (countsAsRequest(previous.code)) return previous;
+  return completeHostedProvision(request, deps);
 }

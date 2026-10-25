@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { completeHostedProvision, type ModelProvider } from './hosted-complete';
+import {
+  completeHostedProvision,
+  retryHostedProvision,
+  type ModelProvider,
+} from './hosted-complete';
 import { countsAsRequest, QuotaBook } from './quota';
 import { citationRemovedLimit } from './validate-citations';
 
@@ -31,7 +35,11 @@ function provider(text: string, calls: string[]): ModelProvider {
   };
 }
 
-function request(messages = [{ role: 'user' as const, content: 'Explain this in plain language' }]) {
+function request(
+  messages = [
+    { role: 'user' as const, content: 'Explain this in plain language' },
+  ],
+) {
   return {
     kind: 'provision' as const,
     installId: 'install-1',
@@ -125,7 +133,7 @@ describe('hosted provision', () => {
       expect(countsAsRequest(result.code)).toBe(false);
       expect(result.quota.used).toBe(0);
     }
-    const retry = await completeHostedProvision(request(), {
+    const retry = await retryHostedProvision(result, request(), {
       loadSection: () => section,
       provider: provider(validBody(), []),
       book,
@@ -150,5 +158,43 @@ describe('hosted provision', () => {
     expect(sink).not.toContain('orchid-secret-phrase');
     expect(logs[0]?.status).toBe(200);
     expect(logs[0]?.tokens).toBe(12);
+  });
+
+  it('does not call the provider once an address has used the ceiling', async () => {
+    const calls: string[] = [];
+    const book = new QuotaBook();
+    book.seedIp('203.0.113.8', now, 20);
+    const result = await completeHostedProvision(request(), {
+      loadSection: () => section,
+      provider: provider(validBody(), calls),
+      book,
+      logs: [],
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.code).toBe('quota_exceeded');
+      expect(result.quota.used).toBe(0);
+    }
+    expect(calls).toHaveLength(0);
+  });
+
+  it('does not count an explain answer that omits the illustration', async () => {
+    const book = new QuotaBook();
+    const result = await completeHostedProvision(request(), {
+      loadSection: () => section,
+      provider: provider(
+        JSON.stringify({
+          explanation: 'This explains the loaded text.',
+          illustration: null,
+          limits: ['Stay inside the loaded text.'],
+          citations: [],
+        }),
+        [],
+      ),
+      book,
+      logs: [],
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.quota.used).toBe(0);
   });
 });

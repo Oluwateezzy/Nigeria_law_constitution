@@ -1,9 +1,10 @@
-let sheetOpen = false;
+let sheetDepth = 0;
 
 export function isSheetOpen(): boolean {
-  return sheetOpen;
+  return sheetDepth > 0;
 }
 
 export function setSheetOpen(open: boolean): void {
-  sheetOpen = open;
+  sheetDepth += open ? 1 : -1;
+  if (sheetDepth < 0) sheetDepth = 0;
 }

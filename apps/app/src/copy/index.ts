@@ -49,6 +49,8 @@ export const copy = {
     ownKey: 'Use my own key',
     plusTitle: 'Plus',
     plusBody: 'Plus is not on sale yet.',
+    clearConfirm: 'Clear this conversation from this section.',
+    serverVersion: 'Explanation uses the text version on the server.',
     providerError: 'The explanation did not come back.',
     badKey: 'That key was not accepted.',
     openSettings: 'Settings',

@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { ensureNotesTable } from '../notes/repository';
 import { openNodeDatabase } from '../search/node';
 import { ensureSyncTables } from '../sync/schema';
-import { appendThreadMessage, listThreadMessages, livingThread } from './repository';
+import {
+  appendThreadMessage,
+  listThreadMessages,
+  livingThread,
+} from './repository';
 
 describe('provision threads', () => {
   it('round-trips a message and its citation', async () => {

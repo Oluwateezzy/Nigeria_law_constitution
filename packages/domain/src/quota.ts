@@ -55,6 +55,10 @@ export class QuotaBook {
     this.ip.set(slot(ip, now), count);
   }
 
+  markFolded(userId: string, installId: string, now: Date): void {
+    this.folded.add(`${userId}|${installId}|${lagosDay(now)}`);
+  }
+
   snapshot(subject: QuotaSubject): QuotaSnapshot {
     const limit = limitForLane(subject.lane);
     const used = this.used(subject);
@@ -99,7 +103,9 @@ export class QuotaBook {
     const foldKey = `${subject.userId}|${subject.installId}|${day}`;
     const account = this.user.get(slot(subject.userId, subject.now)) ?? 0;
     if (this.folded.has(foldKey)) return account;
-    return account + (this.install.get(slot(subject.installId, subject.now)) ?? 0);
+    return (
+      account + (this.install.get(slot(subject.installId, subject.now)) ?? 0)
+    );
   }
 
   private ipUsed(subject: QuotaSubject): number {

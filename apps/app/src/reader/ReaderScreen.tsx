@@ -131,10 +131,10 @@ function SectionReader({
   const duration = motionDuration('section');
 
   useEffect(() => {
-    if (!askOpen) return;
+    if (!askOpen || askColumn) return;
     setSheetOpen(true);
     return () => setSheetOpen(false);
-  }, [askOpen]);
+  }, [askOpen, askColumn]);
   const provision = typeScale.provisionSteps[textSize];
   const lines = useMemo(
     () => provisionLines(current.section.blocks),
@@ -312,120 +312,128 @@ function SectionReader({
       style={{ flex: 1, backgroundColor: colors.bg }}
       {...readerPan.panHandlers}
     >
-      <View style={{ flex: 1, flexDirection: askOpen && askColumn ? 'row' : 'column' }}>
-      <View style={{ flex: 1 }}>
-      <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-        <View style={{ flex: 1, paddingHorizontal: space.screen }}>
-          <TopBar
-            title={instrument.shortTitle}
-            heading={false}
-            actionLabel={copy.settings.close}
-            onAction={close}
-          />
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={copy.searchPlaceholder}
-            onPress={() => {
-              router.push(`/?fromInstrument=${instrument.id}` as Href);
-            }}
-            style={{
-              minHeight: space.target,
-              justifyContent: 'center',
-              alignSelf: 'flex-start',
-            }}
-          >
-            <Text
-              style={{
-                color: colors.accent,
-                fontSize: typeScale.ui.fontSize,
-                lineHeight: typeScale.ui.lineHeight,
-              }}
-            >
-              {copy.reader.search}
-            </Text>
-          </Pressable>
-          <Animated.View
-            style={{
-              marginTop: space.unit * 3,
-              transform: [{ translateX: shake }],
-            }}
-          >
-            <TextField
-              value={jumpValue}
-              onChangeText={(value) => {
-                setJumpValue(value);
-                setJumpError(null);
-              }}
-              onSubmit={submitJump}
-              placeholder="36"
-              accessibilityLabel={copy.reader.jumpLabel}
-              error={jumpError}
-            />
-          </Animated.View>
-          <ScrollView
-            ref={scroller}
-            style={{ flex: 1, marginTop: space.unit * 3 }}
-            contentContainerStyle={{ paddingBottom: space.unit * 6 }}
-            keyboardShouldPersistTaps="handled"
-          >
-            <Animated.View style={{ transform: [{ translateX: shift }] }}>
-              <View
-                nativeID="provision-column"
-                style={{
-                  width: '100%',
-                  maxWidth: columnMaxWidth(provision.fontSize),
-                  alignSelf: 'center',
-                }}
-              >
-                <SectionHeader
-                  path={readerPathLabel(instrument.shortTitle, current.trail)}
-                  number={current.section.number}
-                  heading={current.section.heading}
-                />
-                <ProvisionBody
-                  lines={lines}
-                  textSize={textSize}
-                  onLineLayout={(lineAnchor, y) => {
-                    offsets.current.set(
-                      offsetKey(current.section.id, lineAnchor),
-                      y,
-                    );
-                    if (lineAnchor === anchor) {
-                      scrollToAnchor(lineAnchor);
-                    }
-                  }}
-                />
-              </View>
-            </Animated.View>
-          </ScrollView>
-        </View>
-      </SafeAreaView>
       <View
         style={{
-          paddingBottom: Math.max(insets.bottom, space.unit * 2),
-          paddingHorizontal: space.screen,
-          borderTopWidth: 1,
-          borderTopColor: colors.line,
-          backgroundColor: colors.bgRaised,
+          flex: 1,
+          flexDirection: askOpen && askColumn ? 'row' : 'column',
         }}
       >
-        <ReaderBar
-          atStart={routeIndex === 0}
-          atEnd={routeIndex === located.length - 1}
-          noteFilled={noteFilled(current.section.id)}
-          onPrevious={() => move(-1)}
-          onNext={() => move(1)}
-          onAsk={() => setAskOpen(true)}
-          onNote={() =>
-            openSection({
-              sectionId: current.section.id,
-              instrumentId,
-            })
-          }
-        />
-      </View>
-      </View>
-      {askOpen && askColumn ? askPanel : null}
+        <View style={{ flex: 1 }}>
+          <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+            <View style={{ flex: 1, paddingHorizontal: space.screen }}>
+              <TopBar
+                title={instrument.shortTitle}
+                heading={false}
+                actionLabel={copy.settings.close}
+                onAction={close}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={copy.searchPlaceholder}
+                onPress={() => {
+                  router.push(`/?fromInstrument=${instrument.id}` as Href);
+                }}
+                style={{
+                  minHeight: space.target,
+                  justifyContent: 'center',
+                  alignSelf: 'flex-start',
+                }}
+              >
+                <Text
+                  style={{
+                    color: colors.accent,
+                    fontSize: typeScale.ui.fontSize,
+                    lineHeight: typeScale.ui.lineHeight,
+                  }}
+                >
+                  {copy.reader.search}
+                </Text>
+              </Pressable>
+              <Animated.View
+                style={{
+                  marginTop: space.unit * 3,
+                  transform: [{ translateX: shake }],
+                }}
+              >
+                <TextField
+                  value={jumpValue}
+                  onChangeText={(value) => {
+                    setJumpValue(value);
+                    setJumpError(null);
+                  }}
+                  onSubmit={submitJump}
+                  placeholder="36"
+                  accessibilityLabel={copy.reader.jumpLabel}
+                  error={jumpError}
+                />
+              </Animated.View>
+              <ScrollView
+                ref={scroller}
+                style={{ flex: 1, marginTop: space.unit * 3 }}
+                contentContainerStyle={{ paddingBottom: space.unit * 6 }}
+                keyboardShouldPersistTaps="handled"
+              >
+                <Animated.View style={{ transform: [{ translateX: shift }] }}>
+                  <View
+                    nativeID="provision-column"
+                    style={{
+                      width: '100%',
+                      maxWidth: columnMaxWidth(provision.fontSize),
+                      alignSelf: 'center',
+                    }}
+                  >
+                    <SectionHeader
+                      path={readerPathLabel(
+                        instrument.shortTitle,
+                        current.trail,
+                      )}
+                      number={current.section.number}
+                      heading={current.section.heading}
+                    />
+                    <ProvisionBody
+                      lines={lines}
+                      textSize={textSize}
+                      onLineLayout={(lineAnchor, y) => {
+                        offsets.current.set(
+                          offsetKey(current.section.id, lineAnchor),
+                          y,
+                        );
+                        if (lineAnchor === anchor) {
+                          scrollToAnchor(lineAnchor);
+                        }
+                      }}
+                    />
+                  </View>
+                </Animated.View>
+              </ScrollView>
+            </View>
+          </SafeAreaView>
+          <View
+            style={{
+              paddingBottom: Math.max(insets.bottom, space.unit * 2),
+              paddingHorizontal: space.screen,
+              borderTopWidth: 1,
+              borderTopColor: colors.line,
+              backgroundColor: colors.bgRaised,
+            }}
+          >
+            <ReaderBar
+              atStart={routeIndex === 0}
+              atEnd={routeIndex === located.length - 1}
+              noteFilled={noteFilled(current.section.id)}
+              onPrevious={() => move(-1)}
+              onNext={() => move(1)}
+              onAsk={() => setAskOpen(true)}
+              onNote={() =>
+                openSection({
+                  sectionId: current.section.id,
+                  instrumentId,
+                })
+              }
+            />
+          </View>
+        </View>
+        {askOpen && askColumn ? askPanel : null}
       </View>
       {askOpen && !askColumn ? askPanel : null}
     </View>

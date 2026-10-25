@@ -32,7 +32,10 @@ export {
   QuotaBook,
 } from './quota';
 export type { QuotaLane, QuotaSnapshot, QuotaSubject } from './quota';
-export { completeHostedProvision } from './hosted-complete';
+export {
+  completeHostedProvision,
+  retryHostedProvision,
+} from './hosted-complete';
 export type {
   HostedErrorCode,
   HostedRequest,
