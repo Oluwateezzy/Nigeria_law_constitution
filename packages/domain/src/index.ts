@@ -17,3 +17,13 @@ export type {
 } from './assemble-prompt';
 export { mergeByUpdatedAt } from './merge';
 export type { Timestamped } from './merge';
+export { derivePlainText, normaliseLegalWhitespace } from './plain-text';
+export type { LegalBlock } from './plain-text';
+export { extractSectionMentions } from './mentions';
+export {
+  indexHash,
+  legalTextHash,
+  makeContentVersion,
+} from './content-version';
+export type { HashSection } from './content-version';
+export { sha256 } from './sha256';

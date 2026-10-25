@@ -1,0 +1,19 @@
+{
+  "instrumentId": "cfrn-1999",
+  "name": "Policy and Legal Advocacy Centre (PLAC)",
+  "title": "The Constitution of the Federal Republic of Nigeria 1999, updated with the 1st, 2nd, 3rd Alterations (2010), 4th Alteration (2017) and 5th Alteration (2023)",
+  "url": "https://placng.org/i/wp-content/uploads/2023/11/Constitution-of-the-Federal-Republic-of-Nigeria-1999-Updated.pdf",
+  "retrievedOn": "2026-10-25",
+  "printRevision": "Third Revision Reprint, September 2024",
+  "alterations": [
+    "First Alteration (2010)",
+    "Second Alteration (2010)",
+    "Third Alteration (2010)",
+    "Fourth Alteration (2017)",
+    "Fifth Alteration (2023)"
+  ],
+  "reuseNote": "The words encoded here are the legislative text of the Constitution of the Federal Republic of Nigeria 1999 as printed in the Policy and Legal Advocacy Centre public compilation named above. The PDF does not print a copyright notice, a licence, or a reservation of rights. The foreword says the compilation is published so that lawyers, academics, researchers, and the public can read one document assembled from the government printers, the gazettes, and the National Assembly alteration archives. This corpus copies that legislative text. It does not copy the foreword, the cover, the page furniture, or PLAC's square-bracket notes about which alteration inserted a provision. It is not an annotated commercial edition. constituteproject.org (CC BY-NC 3.0) and NigeriaLII (CC BY-NC 4.0) were not used, because a non-commercial term does not fit an app that will offer a paid subscription. The terms on repository.placlibrary.org belong to that website and were not treated as the terms of this PDF.",
+  "checker": "oluwatobiloba",
+  "checkedOn": "2026-10-25",
+  "reviewNote": "Checked the PDF front matter in the text extract for a copyright line, a licence, and an annotated commentary. None is printed. The printed alteration list is the First, Second and Third Alterations (2010), the Fourth Alteration (2017) and the Fifth Alteration (2023). The print line says Third Revision Reprint, September 2024. Later Acts on the PLAC website are not part of this consolidation. Chapter and schedule headings were read against the arrangement of sections and against the headings in the body. Where the arrangement prints 'The legislature' and the body prints 'The Legislature', the body heading is the one encoded."
+}

@@ -14,6 +14,7 @@
     "lint": "eslint .",
     "test": "vitest run --config vitest.config.ts && pnpm -r --if-present test",
     "scan-secrets": "node scripts/scan-secrets.mjs",
+    "check-corpus": "pnpm --filter @nigeria-law/content check",
     "format": "prettier --write ."
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { TopBar } from '@/components/TopBar';
 import { copy } from '@/copy';
@@ -25,6 +25,26 @@ export default function SettingsScreen() {
       >
         {copy.settings.body}
       </Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Corpus debug"
+        onPress={() => router.push('/debug/corpus')}
+        style={{
+          marginTop: 24,
+          minHeight: 44,
+          justifyContent: 'center',
+        }}
+      >
+        <Text
+          style={{
+            color: colors.accent,
+            fontSize: typeScale.ui.fontSize,
+            lineHeight: typeScale.ui.lineHeight,
+          }}
+        >
+          Corpus debug
+        </Text>
+      </Pressable>
     </Screen>
   );
 }

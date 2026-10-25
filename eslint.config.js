@@ -24,6 +24,8 @@ module.exports = defineConfig([
       'web-build/**',
       'pnpm-lock.yaml',
       'apps/app/assets/**',
+      'packages/content/corpus/**',
+      'packages/content/sources/plac-cfrn-1999.txt',
     ],
   },
 ]);

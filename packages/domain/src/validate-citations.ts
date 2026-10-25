@@ -1,5 +1,7 @@
 import { NotImplemented } from './not-implemented';
 
+// Quote checks will compare a quote with plainText through normaliseLegalWhitespace.
+
 export type Citation = {
   sectionId: string;
   quote: string;

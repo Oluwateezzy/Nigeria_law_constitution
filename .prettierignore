@@ -5,3 +5,5 @@ node_modules
 dist
 web-build
 apps/app/assets
+packages/content/corpus/cfrn-1999.js
+packages/content/sources/plac-cfrn-1999.txt

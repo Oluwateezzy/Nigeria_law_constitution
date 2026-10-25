@@ -7,7 +7,13 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "encode": "vitest run --config vitest.encode.config.ts",
+    "check": "vitest run src/check-corpus.test.ts"
+  },
+  "dependencies": {
+    "@nigeria-law/domain": "workspace:*",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
