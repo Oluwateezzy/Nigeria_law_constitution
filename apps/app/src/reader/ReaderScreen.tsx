@@ -27,7 +27,7 @@ import {
 } from 'react-native-safe-area-context';
 import { EmptyState } from '@/components/EmptyState';
 import { ProvisionBody } from '@/components/ProvisionBody';
-import { ReaderBar } from '@/components/ReaderBar';
+import { ReaderBar, ReaderMoves } from '@/components/ReaderBar';
 import { Screen } from '@/components/Screen';
 import { SectionHeader } from '@/components/SectionHeader';
 import { TextField } from '@/components/TextField';
@@ -36,6 +36,7 @@ import { copy } from '@/copy';
 import { useNotes } from '@/notes/NotesProvider';
 import { usePreferences } from '@/persistence/PreferencesProvider';
 import { readerPan, setSwipeHandler } from '@/reader/gesture';
+import { arrowMovesSection } from '@/reader/keys';
 import { setSheetOpen } from '@/reader/sheet';
 import { parseReaderUrl, readerHref } from '@/reader/linking';
 import { columnMaxWidth } from '@/reader/measure';
@@ -250,7 +251,25 @@ function SectionReader({
     router.replace(readerHref(instrument.id, target.section.number) as Href);
   }
 
-  useEffect(() => setSwipeHandler(move));
+  const moveRef = useRef<(delta: -1 | 1) => void>(() => undefined);
+  useEffect(() => {
+    moveRef.current = move;
+    setSwipeHandler(move);
+  });
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      if (event.altKey || event.metaKey || event.ctrlKey || event.shiftKey) {
+        return;
+      }
+      if (!arrowMovesSection(event.target)) return;
+      event.preventDefault();
+      moveRef.current(event.key === 'ArrowLeft' ? -1 : 1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   function submitJump() {
     const resolved = resolveSectionJump(instrument, jumpValue);
@@ -382,6 +401,14 @@ function SectionReader({
                       alignSelf: 'center',
                     }}
                   >
+                    {askColumn ? (
+                      <ReaderMoves
+                        atStart={routeIndex === 0}
+                        atEnd={routeIndex === located.length - 1}
+                        onPrevious={() => move(-1)}
+                        onNext={() => move(1)}
+                      />
+                    ) : null}
                     {instrument.kind === 'act' ? (
                       <Text
                         style={{

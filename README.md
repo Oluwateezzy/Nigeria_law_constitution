@@ -4,6 +4,8 @@ A reader for the Constitution of the Federal Republic of Nigeria and federal Act
 
 iPhone and Android are the primary apps. The web app is the same client.
 
+The public web address is not set. No tagged production deploy has been published. On that build, a section link is `/read/cfrn-1999/s/1`, a search link is `/?q=supremacy`, and the scenario screen is `/scenario`. The host serves the app for those paths.
+
 The app explains the text it has loaded. That explanation is not legal advice.
 
 ## Features

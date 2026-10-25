@@ -11,6 +11,7 @@ import {
 } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -31,6 +32,7 @@ import {
   continueSectionLabel,
 } from '@/reader/library';
 import { readerHref } from '@/reader/linking';
+import { activeResultIndex, searchCursor } from '@/search/keyboard';
 import { useSearch } from '@/search/SearchProvider';
 import type { SearchResult } from '@/search/repository';
 import { radius, space, type as typeScale } from '@/theme/tokens';
@@ -79,6 +81,7 @@ export default function LibraryScreen() {
     null,
   );
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [cursor, setCursor] = useState({ query: presetQuery, index: 0 });
   const inputRef = useRef<TextInputInstance>(null);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const limitToInstrument =
@@ -132,12 +135,49 @@ export default function LibraryScreen() {
   const searching = query.trim().length > 0;
   const showRecent = focused && !searching && recentQueries.length > 0;
 
-  function openResult(result: SearchResult) {
-    rememberSearch(query);
-    router.push(
-      readerHref(result.instrumentId, result.number, result.anchor) as Href,
-    );
-  }
+  const openResult = useCallback(
+    (result: SearchResult) => {
+      rememberSearch(query);
+      router.push(
+        readerHref(result.instrumentId, result.number, result.anchor) as Href,
+      );
+    },
+    [query, rememberSearch],
+  );
+  const highlighted = activeResultIndex(query, cursor, results.length);
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    if (query.trim()) url.searchParams.set('q', query);
+    else url.searchParams.delete('q');
+    const next = `${url.pathname}${url.search}${url.hash}`;
+    const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (next !== current) {
+      window.history.replaceState(window.history.state, '', next);
+    }
+  }, [query]);
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as {
+        getAttribute?: (name: string) => string | null;
+      } | null;
+      if (target?.getAttribute?.('aria-label') !== copy.searchPlaceholder) {
+        return;
+      }
+      const next = searchCursor(highlighted, results.length, event.key);
+      if (next === null) return;
+      event.preventDefault();
+      if (next === 'open') {
+        const result = results[highlighted];
+        if (result) openResult(result);
+        return;
+      }
+      setCursor({ query, index: next });
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [highlighted, openResult, query, results]);
 
   return (
     <Screen>
@@ -229,10 +269,11 @@ export default function LibraryScreen() {
                 {copy.search.noResults}
               </Text>
             ) : null}
-            {results.map((result) => (
+            {results.map((result, index) => (
               <SearchResultRow
                 key={`${result.sectionId}:${result.anchor ?? ''}`}
                 result={result}
+                selected={searching && index === highlighted}
                 onPress={() => openResult(result)}
               />
             ))}

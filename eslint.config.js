@@ -26,6 +26,10 @@ module.exports = defineConfig([
       'apps/app/assets/**',
       'packages/content/corpus/**',
       'packages/content/sources/plac-cfrn-1999.txt',
+      'e2e/**',
+      'playwright.config.ts',
+      'test-results/**',
+      'playwright-report/**',
     ],
   },
 ]);

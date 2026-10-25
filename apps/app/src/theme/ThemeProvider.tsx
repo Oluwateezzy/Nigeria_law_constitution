@@ -6,7 +6,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { AccessibilityInfo, useColorScheme } from 'react-native';
+import { AccessibilityInfo, Platform, useColorScheme } from 'react-native';
+import { installWebFocus } from './focus';
 import { motionDuration } from './motion';
 import {
   readThemePreference,
@@ -74,6 +75,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       motionDuration: (kind) => motionDuration(kind, reduceMotion),
     };
   }, [preference, reduceMotion, systemScheme]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    installWebFocus(value.colors.accent);
+  }, [value.colors.accent]);
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>

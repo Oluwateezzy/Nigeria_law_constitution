@@ -7,9 +7,14 @@ import { useTheme } from '@/theme/ThemeProvider';
 type SearchResultRowProps = {
   result: SearchResult;
   onPress: () => void;
+  selected?: boolean;
 };
 
-export function SearchResultRow({ result, onPress }: SearchResultRowProps) {
+export function SearchResultRow({
+  result,
+  onPress,
+  selected = false,
+}: SearchResultRowProps) {
   const { colors } = useTheme();
   const badge = reviewBadge(result.reviewStatus);
   const label = [
@@ -25,11 +30,15 @@ export function SearchResultRow({ result, onPress }: SearchResultRowProps) {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ selected }}
       onPress={onPress}
       style={{
         paddingVertical: space.unit * 3,
+        paddingLeft: selected ? space.unit * 2 : 0,
         borderBottomWidth: 1,
         borderBottomColor: colors.line,
+        borderLeftWidth: selected ? 3 : 0,
+        borderLeftColor: colors.accent,
         gap: space.unit,
       }}
     >

@@ -24,6 +24,25 @@ type ReaderBarProps = {
   onNote?: () => void;
 };
 
+export function ReaderMoves({
+  atStart,
+  atEnd,
+  onPrevious,
+  onNext,
+}: {
+  atStart: boolean;
+  atEnd: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
+}) {
+  return (
+    <View style={{ flexDirection: 'row' }}>
+      <MoveControl id="previous" disabled={atStart} onPress={onPrevious} />
+      <MoveControl id="next" disabled={atEnd} onPress={onNext} />
+    </View>
+  );
+}
+
 export function ReaderBar({
   atStart,
   atEnd,
@@ -33,7 +52,6 @@ export function ReaderBar({
   onAsk,
   onNote,
 }: ReaderBarProps) {
-  const { colors } = useTheme();
   const actions = readerBarActions({ atStart, atEnd });
   return (
     <View style={{ flexDirection: 'row' }}>
@@ -54,55 +72,81 @@ export function ReaderBar({
             ? copy.reader.noteSavedLabel
             : text.label;
         return (
-          <Pressable
+          <MoveControl
             key={action.id}
-            accessibilityRole="button"
-            accessibilityLabel={label}
-            accessibilityState={{ disabled: action.disabled }}
+            id={action.id}
+            label={label}
             disabled={action.disabled}
+            noteFilled={action.id === 'note' && noteFilled}
             onPress={onPress}
-            style={{
-              flex: 1,
-              minHeight: space.target,
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingHorizontal: space.unit,
-              opacity: action.disabled ? 0.35 : 1,
-            }}
-          >
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: space.unit,
-              }}
-            >
-              <Text
-                numberOfLines={1}
-                style={{
-                  color: colors.ink,
-                  fontSize: typeScale.ui.fontSize,
-                  lineHeight: typeScale.ui.lineHeight,
-                }}
-              >
-                {text.title}
-              </Text>
-              {action.id === 'note' && noteFilled ? (
-                <View
-                  accessibilityElementsHidden
-                  importantForAccessibility="no-hide-descendants"
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: colors.accent,
-                  }}
-                />
-              ) : null}
-            </View>
-          </Pressable>
+          />
         );
       })}
     </View>
+  );
+}
+
+function MoveControl({
+  id,
+  label,
+  disabled = false,
+  noteFilled = false,
+  onPress,
+}: {
+  id: keyof typeof labels;
+  label?: string;
+  disabled?: boolean;
+  noteFilled?: boolean;
+  onPress?: () => void;
+}) {
+  const { colors } = useTheme();
+  const text = labels[id];
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label ?? text.label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      onPress={onPress}
+      style={{
+        flex: 1,
+        minHeight: space.target,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: space.unit,
+        opacity: disabled ? 0.35 : 1,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: space.unit,
+        }}
+      >
+        <Text
+          numberOfLines={1}
+          style={{
+            color: colors.ink,
+            fontSize: typeScale.ui.fontSize,
+            lineHeight: typeScale.ui.lineHeight,
+          }}
+        >
+          {text.title}
+        </Text>
+        {noteFilled ? (
+          <View
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: colors.accent,
+            }}
+          />
+        ) : null}
+      </View>
+    </Pressable>
   );
 }

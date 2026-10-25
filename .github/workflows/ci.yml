@@ -19,3 +19,7 @@ jobs:
       - run: pnpm test
       - run: pnpm check-corpus
       - run: pnpm scan-secrets
+      - run: EXPO_PUBLIC_AI_DOUBLE=1 pnpm --filter @nigeria-law/app exec expo export --platform web
+      - run: pnpm scan-client-bundle
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:web

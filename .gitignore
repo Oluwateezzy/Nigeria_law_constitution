@@ -41,6 +41,11 @@ android/build/
 .kotlin/
 *.orig.*
 
+# Web checks
+test-results/
+playwright-report/
+blob-report/
+
 # Local tool caches
 .pnpm-store/
 .metro-health-check*
