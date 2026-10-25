@@ -21,3 +21,9 @@ export type { ResolvedJump } from './resolve-jump';
 export { registryEntries } from './registry';
 export type { RegistryEntry } from './registry';
 export { exampleInstrument, parsedExampleInstrument } from './fixture';
+export {
+  aliasList,
+  missingAliasTargets,
+  relevanceQueries,
+} from './aliases';
+export type { Alias, RelevanceQuery } from './aliases';

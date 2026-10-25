@@ -1,15 +1,33 @@
-import { Text, View } from 'react-native';
+import { Pressable, Text, TextInput, View, type TextInputInstance } from 'react-native';
+import type { RefObject } from 'react';
 import { copy } from '@/copy';
 import { radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
-export function SearchField() {
+type SearchFieldProps = {
+  value: string;
+  onChangeText: (value: string) => void;
+  onFocus: () => void;
+  onBlur: () => void;
+  onClear: () => void;
+  autoFocus?: boolean;
+  inputRef: RefObject<TextInputInstance | null>;
+};
+
+export function SearchField({
+  value,
+  onChangeText,
+  onFocus,
+  onBlur,
+  onClear,
+  autoFocus = false,
+  inputRef,
+}: SearchFieldProps) {
   const { colors } = useTheme();
   return (
     <View
       accessibilityRole="search"
-      accessibilityState={{ disabled: true }}
-      accessibilityLabel={copy.searchPlaceholder}
+      onTouchStart={onFocus}
       style={{
         minHeight: space.target,
         marginTop: space.unit * 4,
@@ -18,18 +36,50 @@ export function SearchField() {
         borderColor: colors.line,
         borderRadius: radius.field,
         backgroundColor: colors.bgRaised,
-        justifyContent: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.unit * 2,
       }}
     >
-      <Text
+      <TextInput
+        ref={inputRef}
+        value={value}
+        onChangeText={onChangeText}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        autoFocus={autoFocus}
+        autoCapitalize="none"
+        autoCorrect={false}
+        blurOnSubmit={false}
+        placeholder={copy.searchPlaceholder}
+        placeholderTextColor={colors.inkMuted}
+        accessibilityLabel={copy.searchPlaceholder}
         style={{
-          color: colors.inkMuted,
+          flex: 1,
+          minHeight: space.target,
+          color: colors.ink,
           fontSize: typeScale.ui.fontSize,
           lineHeight: typeScale.ui.lineHeight,
         }}
-      >
-        {copy.searchPlaceholder}
-      </Text>
+      />
+      {value.length > 0 ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={copy.search.clear}
+          onPress={onClear}
+          style={{ minHeight: space.target, justifyContent: 'center' }}
+        >
+          <Text
+            style={{
+              color: colors.accent,
+              fontSize: typeScale.ui.fontSize,
+              lineHeight: typeScale.ui.lineHeight,
+            }}
+          >
+            {copy.search.clear}
+          </Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }

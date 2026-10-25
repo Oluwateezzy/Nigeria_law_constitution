@@ -1,0 +1,40 @@
+{
+  "queries": [
+    { "query": "s.36", "sectionId": "cfrn-1999:s:36" },
+    { "query": "section 36", "sectionId": "cfrn-1999:s:36" },
+    { "query": "36(1)", "sectionId": "cfrn-1999:s:36", "anchor": "sub-1" },
+    { "query": "s.1", "sectionId": "cfrn-1999:s:1" },
+    { "query": "section 1", "sectionId": "cfrn-1999:s:1" },
+    { "query": "1", "sectionId": "cfrn-1999:s:1" },
+    { "query": "s.33", "sectionId": "cfrn-1999:s:33" },
+    { "query": "s.16A", "sectionId": "cfrn-1999:s:16A" },
+    { "query": "s.46", "sectionId": "cfrn-1999:s:46" },
+    {
+      "query": "\"fair hearing\"",
+      "sectionId": "cfrn-1999:s:36"
+    },
+    {
+      "query": "\"This Constitution is supreme\"",
+      "sectionId": "cfrn-1999:s:1"
+    },
+    { "query": "zzzz-no-such-provision", "sectionId": null },
+    { "query": "fair hearing", "sectionId": "cfrn-1999:s:36" },
+    { "query": "right to life", "sectionId": "cfrn-1999:s:33" },
+    { "query": "personal liberty", "sectionId": "cfrn-1999:s:35" },
+    { "query": "freedom of movement", "sectionId": "cfrn-1999:s:41" },
+    {
+      "query": "freedom from discrimination",
+      "sectionId": "cfrn-1999:s:42"
+    },
+    { "query": "human dignity", "sectionId": "cfrn-1999:s:34" },
+    { "query": "privacy", "sectionId": "cfrn-1999:s:37" },
+    { "query": "private and family life", "sectionId": "cfrn-1999:s:37" },
+    { "query": "freedom of religion", "sectionId": "cfrn-1999:s:38" },
+    { "query": "freedom of expression", "sectionId": "cfrn-1999:s:39" },
+    { "query": "free speech", "sectionId": "cfrn-1999:s:39" },
+    { "query": "peaceful assembly", "sectionId": "cfrn-1999:s:40" },
+    { "query": "compulsory acquisition", "sectionId": "cfrn-1999:s:44" },
+    { "query": "legal aid", "sectionId": "cfrn-1999:s:46" },
+    { "query": "supremacy of the constitution", "sectionId": "cfrn-1999:s:1" }
+  ]
+}

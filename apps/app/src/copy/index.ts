@@ -26,6 +26,14 @@ export const copy = {
     continue: 'Continue',
     acts: 'Acts',
   },
+  search: {
+    inThisInstrument: 'In this instrument',
+    notYetReviewed: 'Not yet reviewed',
+    recent: 'Recent searches',
+    clear: 'Clear search',
+    noResults: 'No section matches that search.',
+    preparing: 'Search is getting ready.',
+  },
   scenario: {
     empty: 'A place to describe a situation is on its way.',
   },
@@ -48,6 +56,7 @@ export const copy = {
     unknownInstrument: 'This instrument is not in the loaded text.',
     outline: 'Outline',
     library: 'Library',
+    search: 'Search',
   },
   settings: {
     title: 'Settings',

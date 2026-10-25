@@ -10,8 +10,11 @@ import {
 const row = { id: '1', updatedAt: '2026-10-25T00:00:00.000Z', deletedAt: null };
 
 describe('domain seams', () => {
-  it('keeps parseQuery, validateCitations, assemblePrompt, and mergeByUpdatedAt', () => {
-    expect(() => parseQuery('section 1')).toThrow(NotImplemented);
+  it('parses a query and keeps the later seams closed', () => {
+    expect(parseQuery('section 1')).toMatchObject({
+      kind: 'section',
+      number: '1',
+    });
     expect(() => validateCitations([], [])).toThrow(NotImplemented);
     expect(() => assemblePrompt({ kind: 'provision', messages: [] })).toThrow(
       NotImplemented,

@@ -291,6 +291,28 @@ function SectionReader({
             actionLabel={copy.settings.close}
             onAction={close}
           />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={copy.searchPlaceholder}
+            onPress={() => {
+              router.push(`/?fromInstrument=${instrument.id}` as Href);
+            }}
+            style={{
+              minHeight: space.target,
+              justifyContent: 'center',
+              alignSelf: 'flex-start',
+            }}
+          >
+            <Text
+              style={{
+                color: colors.accent,
+                fontSize: typeScale.ui.fontSize,
+                lineHeight: typeScale.ui.lineHeight,
+              }}
+            >
+              {copy.reader.search}
+            </Text>
+          </Pressable>
           <Animated.View
             style={{
               marginTop: space.unit * 3,

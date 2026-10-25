@@ -7,6 +7,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme, View } from 'react-native';
 import { PreferencesProvider } from '@/persistence/PreferencesProvider';
+import { SearchProvider } from '@/search/SearchProvider';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { palette } from '@/theme/tokens';
 
@@ -26,7 +27,9 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <PreferencesProvider>
-        <ThemedStack />
+        <SearchProvider>
+          <ThemedStack />
+        </SearchProvider>
       </PreferencesProvider>
     </ThemeProvider>
   );

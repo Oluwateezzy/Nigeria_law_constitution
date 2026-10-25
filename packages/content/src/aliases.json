@@ -1,0 +1,18 @@
+{
+  "aliases": [
+    { "phrase": "right to life", "sectionId": "cfrn-1999:s:33" },
+    { "phrase": "human dignity", "sectionId": "cfrn-1999:s:34" },
+    { "phrase": "personal liberty", "sectionId": "cfrn-1999:s:35" },
+    { "phrase": "fair hearing", "sectionId": "cfrn-1999:s:36" },
+    { "phrase": "privacy", "sectionId": "cfrn-1999:s:37" },
+    { "phrase": "private and family life", "sectionId": "cfrn-1999:s:37" },
+    { "phrase": "freedom of religion", "sectionId": "cfrn-1999:s:38" },
+    { "phrase": "freedom of expression", "sectionId": "cfrn-1999:s:39" },
+    { "phrase": "free speech", "sectionId": "cfrn-1999:s:39" },
+    { "phrase": "peaceful assembly", "sectionId": "cfrn-1999:s:40" },
+    { "phrase": "freedom of movement", "sectionId": "cfrn-1999:s:41" },
+    { "phrase": "freedom from discrimination", "sectionId": "cfrn-1999:s:42" },
+    { "phrase": "compulsory acquisition", "sectionId": "cfrn-1999:s:44" },
+    { "phrase": "legal aid", "sectionId": "cfrn-1999:s:46" }
+  ]
+}

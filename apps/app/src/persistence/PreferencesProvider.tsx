@@ -10,7 +10,9 @@ import {
 } from 'react';
 import {
   readReadingPosition,
+  readRecentQueries,
   readTextSize,
+  rememberQuery,
   writeReadingPosition,
   writeTextSize,
   type ReadingPosition,
@@ -22,9 +24,11 @@ type PreferencesValue = {
   ready: boolean;
   textSize: TextSizeStep;
   position: ReadingPosition | null;
+  recentQueries: string[];
   setTextSize: (step: TextSizeStep) => void;
   savePosition: (position: ReadingPosition) => Promise<void>;
   refreshPosition: () => void;
+  rememberSearch: (query: string) => void;
 };
 
 const PreferencesContext = createContext<PreferencesValue | null>(null);
@@ -36,6 +40,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [textSize, setTextSizeState] = useState<TextSizeStep>(1);
   const [position, setPosition] = useState<ReadingPosition | null>(null);
+  const [recentQueries, setRecentQueries] = useState<string[]>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -47,6 +52,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         databaseRef.current = loaded;
         setTextSizeState(readTextSize(loaded));
         setPosition(readReadingPosition(loaded));
+        setRecentQueries(readRecentQueries(loaded));
         setReady(true);
       })
       .catch(() => undefined);
@@ -83,16 +89,36 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     setPosition(readReadingPosition(database));
   }, []);
 
+  const rememberSearch = useCallback((query: string) => {
+    const database = databaseRef.current;
+    if (!database) {
+      return;
+    }
+    setRecentQueries(rememberQuery(database, query));
+    void database.flush();
+  }, []);
+
   const value = useMemo(
     () => ({
       ready,
       textSize,
       position,
+      recentQueries,
       setTextSize,
       savePosition,
       refreshPosition,
+      rememberSearch,
     }),
-    [position, ready, refreshPosition, savePosition, setTextSize, textSize],
+    [
+      position,
+      ready,
+      recentQueries,
+      refreshPosition,
+      rememberSearch,
+      savePosition,
+      setTextSize,
+      textSize,
+    ],
   );
 
   return (

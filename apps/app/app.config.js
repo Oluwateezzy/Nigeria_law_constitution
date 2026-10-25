@@ -38,7 +38,19 @@ module.exports = ({ config }) => ({
     favicon: './assets/favicon.png',
     bundler: 'metro',
   },
-  plugins: ['expo-router', 'expo-font', 'expo-status-bar'],
+  plugins: [
+    [
+      'expo-router',
+      {
+        headers: {
+          'Cross-Origin-Embedder-Policy': 'credentialless',
+          'Cross-Origin-Opener-Policy': 'same-origin',
+        },
+      },
+    ],
+    'expo-font',
+    'expo-status-bar',
+  ],
   extra: {
     appVariant: variant,
   },

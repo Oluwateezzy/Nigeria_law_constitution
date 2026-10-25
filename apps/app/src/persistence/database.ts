@@ -7,6 +7,8 @@ export type ReadingPosition = {
 
 const positionKey = 'reading-position';
 const textSizeKey = 'text-size';
+const recentKey = 'recent-queries';
+const recentLimit = 8;
 
 export class MemoryDatabase {
   private rows = new Map<string, string>();
@@ -47,6 +49,34 @@ export class MemoryDatabase {
   flush(): Promise<void> {
     return this.pending;
   }
+}
+
+export function readRecentQueries(database: MemoryDatabase): string[] {
+  const raw = database.get(recentKey);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+      .slice(0, recentLimit);
+  } catch {
+    return [];
+  }
+}
+
+export function rememberQuery(database: MemoryDatabase, query: string): string[] {
+  const trimmed = query.trim();
+  const current = readRecentQueries(database);
+  if (!trimmed) return current;
+  const next = [trimmed, ...current.filter((item) => item !== trimmed)].slice(
+    0,
+    recentLimit,
+  );
+  database.set(recentKey, JSON.stringify(next));
+  return next;
 }
 
 export function writeReadingPosition(
