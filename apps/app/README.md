@@ -40,6 +40,7 @@ Empty examples live in `apps/app/.env.example` (client) and `supabase/.env.examp
 | Supabase anon key, production | `EXPO_PUBLIC_SUPABASE_ANON_KEY`  | App env for production. Not the service role | Yes    |
 | Supabase service role     | `SUPABASE_SERVICE_ROLE_KEY`          | Function secrets on that same project | Never  |
 | Hosted model key          | `HOSTED_MODEL_KEY`                   | Supabase function secrets       | Never  |
+| Hosted model              | OpenAI `gpt-4.1-mini`                | Recorded in `supabase/functions/ai/README.md`. The key is the secret; the model id is not | Never for the key |
 | RevenueCat public SDK key | `EXPO_PUBLIC_REVENUECAT_SDK_KEY`     | App env, preview and production | Yes    |
 | RevenueCat secret         | `REVENUECAT_SECRET_KEY`              | Supabase function secrets       | Never  |
 | Stripe publishable key    | `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` | App env, preview and production | Yes    |

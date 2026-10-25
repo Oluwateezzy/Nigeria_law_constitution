@@ -2,19 +2,52 @@ export { NotImplemented } from './not-implemented';
 export { lagosDay } from './lagos-day';
 export { parseQuery } from './parse-query';
 export type { ParsedQuery } from './parse-query';
-export { validateCitations } from './validate-citations';
+export { citationRemovedLimit, validateCitations } from './validate-citations';
 export type {
   AllowedSection,
   Citation,
   ValidatedCitations,
 } from './validate-citations';
-export { assemblePrompt } from './assemble-prompt';
+export {
+  assemblePrompt,
+  illustrationRequired,
+  provisionHistoryLimit,
+  provisionStarters,
+} from './assemble-prompt';
 export type {
   AssemblePromptInput,
   AssembledPrompt,
   ChatMessage,
   PromptSection,
 } from './assemble-prompt';
+export { parseModelPayload } from './model-payload';
+export type { ModelAnswer } from './model-payload';
+export {
+  countsAsRequest,
+  freeHostedLimit,
+  ipHostedLimit,
+  lagosResetsAt,
+  limitForLane,
+  plusHostedLimit,
+  QuotaBook,
+} from './quota';
+export type { QuotaLane, QuotaSnapshot, QuotaSubject } from './quota';
+export { completeHostedProvision } from './hosted-complete';
+export type {
+  HostedErrorCode,
+  HostedRequest,
+  HostedResult,
+  LoadedSection,
+  ModelProvider,
+  ProxyLog,
+} from './hosted-complete';
+export {
+  hostedModelId,
+  hostedVendor,
+  ownKeyHeaders,
+  ownKeyProbes,
+} from './own-key';
+export type { OwnKeyProbe, OwnKeyProvider } from './own-key';
 export { mergeByUpdatedAt } from './merge';
 export type { Timestamped } from './merge';
 export { derivePlainText, normaliseLegalWhitespace } from './plain-text';

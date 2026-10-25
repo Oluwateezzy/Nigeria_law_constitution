@@ -1,0 +1,79 @@
+[
+  {
+    "id": "definition-explain",
+    "sectionId": "cfrn-1999:s:161",
+    "userText": "Explain this in plain language",
+    "checks": { "illustration": true, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "definition-illustration",
+    "sectionId": "cfrn-1999:s:161",
+    "userText": "Give an illustration",
+    "checks": { "illustration": true, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "definition-limits",
+    "sectionId": "cfrn-1999:s:161",
+    "userText": "What are the limits of this section?",
+    "checks": { "illustration": false, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "rights-explain",
+    "sectionId": "cfrn-1999:s:36",
+    "userText": "Explain this in plain language",
+    "checks": { "illustration": true, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "rights-illustration",
+    "sectionId": "cfrn-1999:s:36",
+    "userText": "Give an illustration",
+    "checks": { "illustration": true, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "rights-limits",
+    "sectionId": "cfrn-1999:s:36",
+    "userText": "What are the limits of this section?",
+    "checks": { "illustration": false, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "proviso-explain",
+    "sectionId": "cfrn-1999:s:5",
+    "userText": "Explain this in plain language",
+    "checks": { "illustration": true, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "proviso-illustration",
+    "sectionId": "cfrn-1999:s:5",
+    "userText": "Give an illustration",
+    "checks": { "illustration": true, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "schedule-states",
+    "sectionId": "cfrn-1999:s:sch1-pt1",
+    "userText": "Explain this in plain language",
+    "checks": { "illustration": true, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "schedule-exclusive-list",
+    "sectionId": "cfrn-1999:s:sch2-pt1",
+    "userText": "Explain this in plain language",
+    "checks": { "illustration": true, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "schedule-area-councils",
+    "sectionId": "cfrn-1999:s:sch1-pt2",
+    "userText": "What are the limits of this section?",
+    "checks": { "illustration": false, "currentSectionOnly": true, "noCourt": true }
+  },
+  {
+    "id": "rights-other-section",
+    "sectionId": "cfrn-1999:s:36",
+    "userText": "What does section 39 say about the press?",
+    "checks": {
+      "illustration": false,
+      "currentSectionOnly": true,
+      "noCourt": true,
+      "outOfScope": true
+    }
+  }
+]

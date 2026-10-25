@@ -20,6 +20,7 @@ type ReaderBarProps = {
   noteFilled?: boolean;
   onPrevious: () => void;
   onNext: () => void;
+  onAsk?: () => void;
   onNote?: () => void;
 };
 
@@ -29,6 +30,7 @@ export function ReaderBar({
   noteFilled = false,
   onPrevious,
   onNext,
+  onAsk,
   onNote,
 }: ReaderBarProps) {
   const { colors } = useTheme();
@@ -44,7 +46,9 @@ export function ReaderBar({
               ? onNext
               : action.id === 'note'
                 ? onNote
-                : undefined;
+                : action.id === 'ask'
+                  ? onAsk
+                  : undefined;
         const label =
           action.id === 'note' && noteFilled
             ? copy.reader.noteSavedLabel

@@ -10,8 +10,11 @@ import {
 } from 'react';
 import {
   readAccountLineDismissed,
+  readDisclosureAccepted,
+  readInstallId,
   readLastSyncAt,
   readPositionUpdatedAt,
+  readQuotaSnapshot,
   readReadingPosition,
   readRecentQueries,
   readTextSize,
@@ -19,13 +22,17 @@ import {
   readUploadChoiceAt,
   rememberQuery,
   writeAccountLineDismissed,
+  writeDisclosureAccepted,
   writeLastSyncAt,
+  writeQuotaSnapshot,
   writeReadingPosition,
   writeTextSize,
   writeUploadChoice,
+  type QuotaSnapshot,
   type ReadingPosition,
   type TextSizeStep,
 } from './database';
+import { createNoteId } from '@/notes/repository';
 import type { UploadChoice } from '@/account/upload';
 import { openDeviceDatabase } from './device';
 
@@ -46,6 +53,11 @@ type PreferencesValue = {
   positionUpdatedAt: string | null;
   rememberUploadChoice: (choice: UploadChoice, at: string) => void;
   rememberLastSync: (at: string) => void;
+  disclosureAccepted: boolean;
+  acceptDisclosure: () => void;
+  installId: string;
+  quota: QuotaSnapshot;
+  rememberQuota: (snapshot: QuotaSnapshot) => void;
 };
 
 const PreferencesContext = createContext<PreferencesValue | null>(null);
@@ -65,6 +77,13 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [positionUpdatedAt, setPositionUpdatedAt] = useState<string | null>(
     null,
   );
+  const [disclosureAccepted, setDisclosureAccepted] = useState(false);
+  const [installId, setInstallId] = useState('');
+  const [quota, setQuota] = useState<QuotaSnapshot>({
+    remaining: 5,
+    limit: 5,
+    resetsAt: '',
+  });
 
   useEffect(() => {
     let mounted = true;
@@ -82,6 +101,15 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         setUploadChoiceAt(readUploadChoiceAt(loaded));
         setLastSyncAt(readLastSyncAt(loaded));
         setPositionUpdatedAt(readPositionUpdatedAt(loaded));
+        setDisclosureAccepted(readDisclosureAccepted(loaded));
+        setInstallId(readInstallId(loaded, createNoteId));
+        setQuota(
+          readQuotaSnapshot(loaded) ?? {
+            remaining: 5,
+            limit: 5,
+            resetsAt: '',
+          },
+        );
         setReady(true);
       })
       .catch(() => undefined);
@@ -156,6 +184,22 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     void database.flush();
   }, []);
 
+  const acceptDisclosure = useCallback(() => {
+    setDisclosureAccepted(true);
+    const database = databaseRef.current;
+    if (!database) return;
+    writeDisclosureAccepted(database);
+    void database.flush();
+  }, []);
+
+  const rememberQuota = useCallback((snapshot: QuotaSnapshot) => {
+    setQuota(snapshot);
+    const database = databaseRef.current;
+    if (!database) return;
+    writeQuotaSnapshot(database, snapshot);
+    void database.flush();
+  }, []);
+
   const value = useMemo(
     () => ({
       ready,
@@ -174,11 +218,21 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       positionUpdatedAt,
       rememberUploadChoice,
       rememberLastSync,
+      disclosureAccepted,
+      acceptDisclosure,
+      installId,
+      quota,
+      rememberQuota,
     }),
     [
+      acceptDisclosure,
       accountLineDismissed,
+      disclosureAccepted,
       dismissAccountLine,
+      installId,
       lastSyncAt,
+      quota,
+      rememberQuota,
       position,
       positionUpdatedAt,
       ready,

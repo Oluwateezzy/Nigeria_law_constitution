@@ -9,7 +9,7 @@ export function readerBarActions(position: {
 }): ReaderBarAction[] {
   return [
     { id: 'previous', disabled: position.atStart },
-    { id: 'ask', disabled: true },
+    { id: 'ask', disabled: false },
     { id: 'note', disabled: false },
     { id: 'next', disabled: position.atEnd },
   ];

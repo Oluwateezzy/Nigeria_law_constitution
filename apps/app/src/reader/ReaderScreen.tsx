@@ -14,9 +14,12 @@ import {
   Pressable,
   ScrollView,
   Text,
+  useWindowDimensions,
   View,
   type ScrollViewInstance,
 } from 'react-native';
+import { askUsesColumn } from '@/ask/layout';
+import { AskPanel } from '@/components/AskPanel';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -32,6 +35,7 @@ import { copy } from '@/copy';
 import { useNotes } from '@/notes/NotesProvider';
 import { usePreferences } from '@/persistence/PreferencesProvider';
 import { readerPan, setSwipeHandler } from '@/reader/gesture';
+import { setSheetOpen } from '@/reader/sheet';
 import { parseReaderUrl, readerHref } from '@/reader/linking';
 import { columnMaxWidth } from '@/reader/measure';
 import { provisionLines } from '@/reader/provision-lines';
@@ -107,6 +111,9 @@ function SectionReader({
   const { textSize, savePosition } = usePreferences();
   const { openSection, noteFilled } = useNotes();
   const insets = useSafeAreaInsets();
+  const windowWidth = useWindowDimensions().width;
+  const askColumn = askUsesColumn(windowWidth);
+  const [askOpen, setAskOpen] = useState(false);
   const [jumpValue, setJumpValue] = useState('');
   const [jumpError, setJumpError] = useState<string | null>(null);
   const [anchor, setAnchor] = useState<string | null>(
@@ -122,6 +129,12 @@ function SectionReader({
   const offsets = useRef(new Map<string, number>());
 
   const duration = motionDuration('section');
+
+  useEffect(() => {
+    if (!askOpen) return;
+    setSheetOpen(true);
+    return () => setSheetOpen(false);
+  }, [askOpen]);
   const provision = typeScale.provisionSteps[textSize];
   const lines = useMemo(
     () => provisionLines(current.section.blocks),
@@ -280,11 +293,27 @@ function SectionReader({
     router.replace(`/read/${instrument.id}` as Href);
   }
 
+  const askPanel = (
+    <AskPanel
+      sectionId={current.section.id}
+      title={current.section.heading ?? current.section.number}
+      plainText={current.section.plainText}
+      path={readerPathLabel(instrument.shortTitle, current.trail)}
+      citation={instrument.citation}
+      extent={instrument.extent}
+      contentVersion={instrument.contentVersion}
+      modal={!askColumn}
+      onClose={() => setAskOpen(false)}
+    />
+  );
+
   return (
     <View
       style={{ flex: 1, backgroundColor: colors.bg }}
       {...readerPan.panHandlers}
     >
+      <View style={{ flex: 1, flexDirection: askOpen && askColumn ? 'row' : 'column' }}>
+      <View style={{ flex: 1 }}>
       <SafeAreaView edges={['top']} style={{ flex: 1 }}>
         <View style={{ flex: 1, paddingHorizontal: space.screen }}>
           <TopBar
@@ -386,6 +415,7 @@ function SectionReader({
           noteFilled={noteFilled(current.section.id)}
           onPrevious={() => move(-1)}
           onNext={() => move(1)}
+          onAsk={() => setAskOpen(true)}
           onNote={() =>
             openSection({
               sectionId: current.section.id,
@@ -394,6 +424,10 @@ function SectionReader({
           }
         />
       </View>
+      </View>
+      {askOpen && askColumn ? askPanel : null}
+      </View>
+      {askOpen && !askColumn ? askPanel : null}
     </View>
   );
 }

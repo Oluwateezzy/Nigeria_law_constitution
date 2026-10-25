@@ -13,6 +13,9 @@ const accountLineKey = 'account-line-dismissed';
 const uploadChoiceKey = 'upload-choice';
 const uploadChoiceAtKey = 'upload-choice-at';
 const lastSyncKey = 'last-sync-at';
+const disclosureKey = 'disclosure-accepted';
+const installKey = 'install-id';
+const quotaKey = 'quota-snapshot';
 const recentLimit = 8;
 
 export class MemoryDatabase {
@@ -174,4 +177,41 @@ export function readLastSyncAt(database: MemoryDatabase): string | null {
 
 export function writeLastSyncAt(database: MemoryDatabase, at: string): void {
   database.set(lastSyncKey, at);
+}
+
+export type QuotaSnapshot = {
+  remaining: number;
+  limit: number;
+  resetsAt: string;
+};
+
+export function readDisclosureAccepted(database: MemoryDatabase): boolean {
+  return database.get(disclosureKey) === '1';
+}
+
+export function writeDisclosureAccepted(database: MemoryDatabase): void {
+  database.set(disclosureKey, '1');
+}
+
+export function readInstallId(database: MemoryDatabase, createId: () => string): string {
+  const existing = database.get(installKey);
+  if (existing) return existing;
+  const created = createId();
+  database.set(installKey, created);
+  return created;
+}
+
+export function readQuotaSnapshot(database: MemoryDatabase): QuotaSnapshot | null {
+  const raw = database.get(quotaKey);
+  if (!raw) return null;
+  const parsed = JSON.parse(raw) as QuotaSnapshot;
+  if (typeof parsed.remaining !== 'number') return null;
+  return parsed;
+}
+
+export function writeQuotaSnapshot(
+  database: MemoryDatabase,
+  snapshot: QuotaSnapshot,
+): void {
+  database.set(quotaKey, JSON.stringify(snapshot));
 }

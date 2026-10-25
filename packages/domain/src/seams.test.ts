@@ -15,8 +15,8 @@ describe('domain seams', () => {
       kind: 'section',
       number: '1',
     });
-    expect(() => validateCitations([], [])).toThrow(NotImplemented);
-    expect(() => assemblePrompt({ kind: 'provision', messages: [] })).toThrow(
+    expect(validateCitations([], []).citations).toEqual([]);
+    expect(() => assemblePrompt({ kind: 'scenario', messages: [] })).toThrow(
       NotImplemented,
     );
     expect(

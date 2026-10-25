@@ -140,6 +140,26 @@ export default function SettingsScreen() {
         ) : null}
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={copy.ai.useOwnKey}
+          onPress={() => router.push('/settings/ai')}
+          style={{
+            minHeight: space.target,
+            justifyContent: 'center',
+            marginTop: space.unit * 4,
+          }}
+        >
+          <Text
+            style={{
+              color: colors.accent,
+              fontSize: typeScale.ui.fontSize,
+              lineHeight: typeScale.ui.lineHeight,
+            }}
+          >
+            {copy.ai.useOwnKey}
+          </Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
           accessibilityLabel={copy.settings.saveAccount}
           onPress={() => router.push('/settings/account')}
           style={{
