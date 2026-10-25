@@ -35,14 +35,24 @@ export type SendResult =
   | { kind: 'offline' }
   | {
       kind: 'quota';
-      quota?: { remaining: number; limit: number; resetsAt: string };
+      quota?: {
+        remaining: number;
+        limit: number;
+        resetsAt: string;
+        lane?: 'free' | 'plus';
+      };
     }
   | { kind: 'provider' }
   | {
       kind: 'answer';
       answer: AskAnswer;
       counted: boolean;
-      quota?: { remaining: number; limit: number; resetsAt: string };
+      quota?: {
+        remaining: number;
+        limit: number;
+        resetsAt: string;
+        lane?: 'free' | 'plus';
+      };
       contentVersion?: string;
     };
 
@@ -109,7 +119,12 @@ export async function sendProvision(input: {
   if (response.status >= 400) return { kind: 'provider' };
   const payload = JSON.parse(response.body) as {
     message?: AskAnswer & { content: string };
-    quota?: { remaining: number; limit: number; resetsAt: string };
+    quota?: {
+      remaining: number;
+      limit: number;
+      resetsAt: string;
+      lane?: 'free' | 'plus';
+    };
     contentVersion?: string;
   };
   if (!payload.message) return { kind: 'provider' };
@@ -122,12 +137,22 @@ export async function sendProvision(input: {
   };
 }
 
-function readQuota(
-  body: string,
-): { remaining: number; limit: number; resetsAt: string } | undefined {
+function readQuota(body: string):
+  | {
+      remaining: number;
+      limit: number;
+      resetsAt: string;
+      lane?: 'free' | 'plus';
+    }
+  | undefined {
   try {
     const payload = JSON.parse(body) as {
-      quota?: { remaining?: number; limit?: number; resetsAt?: string };
+      quota?: {
+        remaining?: number;
+        limit?: number;
+        resetsAt?: string;
+        lane?: string;
+      };
     };
     const quota = payload.quota;
     if (
@@ -141,6 +166,9 @@ function readQuota(
       remaining: quota.remaining,
       limit: quota.limit,
       resetsAt: quota.resetsAt ?? '',
+      ...(quota.lane === 'plus' || quota.lane === 'free'
+        ? { lane: quota.lane }
+        : {}),
     };
   } catch {
     return undefined;

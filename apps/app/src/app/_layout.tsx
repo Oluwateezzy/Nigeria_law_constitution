@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useColorScheme, View } from 'react-native';
 import '@/account/crypto-polyfill';
 import { AuthProvider } from '@/account/AuthProvider';
+import { PlusAlias } from '@/billing/PlusAlias';
 import { NotesProvider } from '@/notes/NotesProvider';
 import { PreferencesProvider } from '@/persistence/PreferencesProvider';
 import { SearchProvider } from '@/search/SearchProvider';
@@ -33,6 +34,7 @@ export default function RootLayout() {
       <PreferencesProvider>
         <SearchProvider>
           <AuthProvider>
+            <PlusAlias />
             <NotesProvider>
               <SyncProvider>
                 <ThemedStack />

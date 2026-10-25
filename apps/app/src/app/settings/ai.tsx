@@ -2,10 +2,12 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { readOwnKey, writeOwnKey } from '@/ask/keys';
+import { PlusPurchase } from '@/billing/PlusPurchase';
 import { validateOwnKey, type AskHttp } from '@/ask/send';
 import { Screen } from '@/components/Screen';
 import { TopBar } from '@/components/TopBar';
 import { copy } from '@/copy';
+import { usePreferences } from '@/persistence/PreferencesProvider';
 import { radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { OwnKeyProvider } from '@nigeria-law/domain';
@@ -20,6 +22,7 @@ const http: AskHttp = async (request) => {
 
 export default function AiSettingsScreen() {
   const { colors } = useTheme();
+  const preferences = usePreferences();
   const [provider, setProvider] = useState<OwnKeyProvider>('openai');
   const [secret, setSecret] = useState('');
   const [saved, setSaved] = useState(false);
@@ -46,6 +49,7 @@ export default function AiSettingsScreen() {
           router.replace('/settings');
         }}
       />
+      <PlusPurchase lane={preferences.quota.lane ?? 'free'} showPrice />
       <Text
         style={{
           marginTop: space.unit * 4,
@@ -73,11 +77,19 @@ export default function AiSettingsScreen() {
           <Pressable
             key={item}
             accessibilityRole="button"
-            accessibilityLabel={item === 'openai' ? copy.ai.openai : copy.ai.anthropic}
+            accessibilityLabel={
+              item === 'openai' ? copy.ai.openai : copy.ai.anthropic
+            }
             onPress={() => setProvider(item)}
-            style={{ minHeight: space.target, justifyContent: 'center', marginRight: space.unit * 4 }}
+            style={{
+              minHeight: space.target,
+              justifyContent: 'center',
+              marginRight: space.unit * 4,
+            }}
           >
-            <Text style={{ color: provider === item ? colors.accent : colors.ink }}>
+            <Text
+              style={{ color: provider === item ? colors.accent : colors.ink }}
+            >
               {item === 'openai' ? copy.ai.openai : copy.ai.anthropic}
             </Text>
           </Pressable>
@@ -117,7 +129,9 @@ export default function AiSettingsScreen() {
         />
       )}
       {error ? (
-        <Text style={{ marginTop: space.unit * 3, color: colors.danger }}>{error}</Text>
+        <Text style={{ marginTop: space.unit * 3, color: colors.danger }}>
+          {error}
+        </Text>
       ) : null}
       {saved ? (
         <Pressable
@@ -138,17 +152,21 @@ export default function AiSettingsScreen() {
           accessibilityRole="button"
           accessibilityLabel={copy.ai.save}
           onPress={() => {
-            void validateOwnKey(provider, secret.trim(), http).then((accepted) => {
-              if (!accepted) {
-                setError(copy.ask.badKey);
-                return;
-              }
-              void writeOwnKey({ provider, secret: secret.trim() }).then(() => {
-                setSaved(true);
-                setError(null);
-                setSecret('');
-              });
-            });
+            void validateOwnKey(provider, secret.trim(), http).then(
+              (accepted) => {
+                if (!accepted) {
+                  setError(copy.ask.badKey);
+                  return;
+                }
+                void writeOwnKey({ provider, secret: secret.trim() }).then(
+                  () => {
+                    setSaved(true);
+                    setError(null);
+                    setSecret('');
+                  },
+                );
+              },
+            );
           }}
           style={{ minHeight: space.target, justifyContent: 'center' }}
         >

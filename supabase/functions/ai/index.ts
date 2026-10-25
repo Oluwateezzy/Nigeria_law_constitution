@@ -11,6 +11,7 @@ import {
 } from '../../../packages/domain/src/hosted-complete.ts';
 import { lagosDay } from '../../../packages/domain/src/lagos-day.ts';
 import { hostedModelId } from '../../../packages/domain/src/own-key.ts';
+import { resolveProxyLane } from '../../../packages/domain/src/entitlement.ts';
 import { sha256 } from '../../../packages/domain/src/sha256.ts';
 import { shippingInstruments } from '../../../packages/content/src/load.ts';
 
@@ -27,6 +28,8 @@ Deno.serve(async (request) => {
     installId?: string;
     contentVersion?: string;
     sectionId?: string;
+    lane?: string;
+    plus?: boolean;
     retrievedSectionIds?: string[];
     messages?: { role: 'user' | 'assistant'; content: string }[];
   };
@@ -68,7 +71,13 @@ Deno.serve(async (request) => {
     if (folded) book.markFolded(userId, body.installId, now);
   }
   const logs: ProxyLog[] = [];
-  const lane = await laneFor(env, userId);
+  const lane = await laneFor(
+    env,
+    userId,
+    body.installId,
+    body.plus ? 'plus' : body.lane,
+    now,
+  );
   const result =
     body.kind === 'scenario'
       ? await completeHostedScenario(
@@ -235,17 +244,32 @@ async function signedInUser(request: Request): Promise<string | null> {
 async function laneFor(
   env: { url: string; service: string; anon: string } | null,
   userId: string | null,
+  installId: string,
+  claimed: string | null | undefined,
+  now: Date,
 ): Promise<'free' | 'plus'> {
-  if (!env || !userId) return 'free';
+  const rows: { expiresAt: string | null }[] = [];
+  if (env && userId && uuidPattern.test(userId)) {
+    rows.push(...(await expiryRows(env, userId, 'user')));
+  }
+  if (env && uuidPattern.test(installId)) {
+    rows.push(...(await expiryRows(env, installId, 'install')));
+  }
+  return resolveProxyLane({ claimed, rows, now });
+}
+
+async function expiryRows(
+  env: { url: string; service: string; anon: string },
+  subjectId: string,
+  kind: 'user' | 'install',
+): Promise<{ expiresAt: string | null }[]> {
   const rows = await restGet(
     env,
-    `entitlements?subject_id=eq.${userId}&subject_kind=eq.user&lane=eq.plus&select=expires_at`,
+    `entitlements?subject_id=eq.${subjectId}&subject_kind=eq.${kind}&lane=eq.plus&select=expires_at`,
   );
-  const expires = rows[0]?.expires_at;
-  if (!rows[0]) return 'free';
-  if (typeof expires === 'string' && new Date(expires).getTime() <= Date.now())
-    return 'free';
-  return 'plus';
+  return rows.map((row) => ({
+    expiresAt: typeof row.expires_at === 'string' ? row.expires_at : null,
+  }));
 }
 
 async function readCount(

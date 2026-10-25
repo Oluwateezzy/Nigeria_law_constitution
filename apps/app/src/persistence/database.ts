@@ -183,6 +183,7 @@ export type QuotaSnapshot = {
   remaining: number;
   limit: number;
   resetsAt: string;
+  lane?: 'free' | 'plus';
 };
 
 export function readDisclosureAccepted(database: MemoryDatabase): boolean {
@@ -193,7 +194,10 @@ export function writeDisclosureAccepted(database: MemoryDatabase): void {
   database.set(disclosureKey, '1');
 }
 
-export function readInstallId(database: MemoryDatabase, createId: () => string): string {
+export function readInstallId(
+  database: MemoryDatabase,
+  createId: () => string,
+): string {
   const existing = database.get(installKey);
   if (existing) return existing;
   const created = createId();
@@ -201,7 +205,9 @@ export function readInstallId(database: MemoryDatabase, createId: () => string):
   return created;
 }
 
-export function readQuotaSnapshot(database: MemoryDatabase): QuotaSnapshot | null {
+export function readQuotaSnapshot(
+  database: MemoryDatabase,
+): QuotaSnapshot | null {
   const raw = database.get(quotaKey);
   if (!raw) return null;
   const parsed = JSON.parse(raw) as QuotaSnapshot;

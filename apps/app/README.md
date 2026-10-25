@@ -46,6 +46,7 @@ Empty examples live in `apps/app/.env.example` (client) and `supabase/.env.examp
 | Stripe publishable key    | `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` | App env, preview and production | Yes    |
 | Stripe secret             | `STRIPE_SECRET_KEY`                  | Supabase function secrets       | Never  |
 | Stripe webhook secret     | `STRIPE_WEBHOOK_SECRET`              | Supabase function secrets       | Never  |
+| Stripe Plus price id      | `STRIPE_PLUS_PRICE_ID`               | Supabase function secrets. The price is ₦1,500 per month | Never  |
 | RevenueCat webhook secret | `REVENUECAT_WEBHOOK_SECRET`          | Supabase function secrets       | Never  |
 
 The hosted model key, the service role, the Stripe secret, and the RevenueCat secret must never be shipped in the client.

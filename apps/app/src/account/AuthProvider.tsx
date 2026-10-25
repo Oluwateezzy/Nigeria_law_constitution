@@ -25,6 +25,7 @@ WebBrowser.maybeCompleteAuthSession();
 type AccountValue = {
   configured: boolean;
   signedIn: boolean;
+  userId: string | null;
   accessToken: string | null;
   label: string | null;
   gateway: SyncGateway | null;
@@ -163,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       configured: client !== null,
       signedIn: session !== null,
+      userId: session?.user.id ?? null,
       accessToken: session?.access_token ?? null,
       label,
       gateway,

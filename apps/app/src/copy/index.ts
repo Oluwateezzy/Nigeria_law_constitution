@@ -1,3 +1,9 @@
+import {
+  freeHostedLimit,
+  plusHostedLimit,
+  plusOffer,
+} from '@nigeria-law/domain';
+
 export const copy = {
   productName: 'Nigeria Constitution and Law',
   searchPlaceholder: 'Search the Constitution and laws',
@@ -18,7 +24,7 @@ export const copy = {
       'The words of the question, and the text of the sections used, are sent to the model provider for that request.',
     hostedOrOwnKey:
       'Hosted requests use the project provider. Own-key requests use the provider they chose.',
-    freeLane: 'The free lane allows 5 hosted requests per day on this install.',
+    freeLane: `The free lane allows ${freeHostedLimit} hosted requests per day on this install.`,
     continue: 'Continue',
   },
   library: {
@@ -57,13 +63,21 @@ export const copy = {
     subscribe: 'Subscribe to Plus',
     ownKey: 'Use my own key',
     plusTitle: 'Plus',
-    plusBody: 'Plus is not on sale yet.',
+    plusBody: `${plusHostedLimit} hosted requests per day.`,
     clearConfirm: 'Clear this conversation from this section.',
     serverVersion: 'Explanation uses the text version on the server.',
     providerError: 'The explanation did not come back.',
     badKey: 'That key was not accepted.',
     openSettings: 'Settings',
     send: 'Send',
+  },
+  plus: {
+    price: plusOffer.display,
+    allowance: `${plusHostedLimit} hosted requests per day.`,
+    restore: 'Restore purchases',
+    manage: 'Manage subscription',
+    waiting: 'Plus is waiting for the store confirmation.',
+    unavailable: 'The store purchase did not start.',
   },
   ai: {
     title: 'AI',

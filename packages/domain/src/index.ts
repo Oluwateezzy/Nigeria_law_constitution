@@ -31,6 +31,16 @@ export {
   plusHostedLimit,
   QuotaBook,
 } from './quota';
+export {
+  entitlementActive,
+  plusOffer,
+  proxyLimit,
+  resolveProxyLane,
+  rowsFromRevenueCatEvent,
+  rowsFromStripeEvent,
+  shouldAliasPurchase,
+} from './entitlement';
+export type { EntitlementRow, EntitlementUpdate } from './entitlement';
 export type { QuotaLane, QuotaSnapshot, QuotaSubject } from './quota';
 export {
   completeHostedProvision,

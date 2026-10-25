@@ -1,13 +1,12 @@
 import { router } from 'expo-router';
-import { Text } from 'react-native';
+import { PlusPurchase } from '@/billing/PlusPurchase';
 import { Screen } from '@/components/Screen';
 import { TopBar } from '@/components/TopBar';
 import { copy } from '@/copy';
-import { space, type as typeScale } from '@/theme/tokens';
-import { useTheme } from '@/theme/ThemeProvider';
+import { usePreferences } from '@/persistence/PreferencesProvider';
 
 export default function PlusScreen() {
-  const { colors } = useTheme();
+  const preferences = usePreferences();
   return (
     <Screen edges={['top', 'bottom']}>
       <TopBar
@@ -18,19 +17,10 @@ export default function PlusScreen() {
             router.back();
             return;
           }
-          router.replace('/settings');
+          router.replace('/settings/ai');
         }}
       />
-      <Text
-        style={{
-          marginTop: space.unit * 6,
-          color: colors.ink,
-          fontSize: typeScale.ui.fontSize,
-          lineHeight: typeScale.ui.lineHeight,
-        }}
-      >
-        {copy.ask.plusBody}
-      </Text>
+      <PlusPurchase lane={preferences.quota.lane ?? 'free'} showPrice />
     </Screen>
   );
 }

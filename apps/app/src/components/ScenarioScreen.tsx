@@ -12,6 +12,7 @@ import { readSupabasePublicConfig } from '@/account/client';
 import { readOwnKey } from '@/ask/keys';
 import { quotaLine } from '@/ask/quota-line';
 import type { ThreadMessage } from '@/ask/repository';
+import { PlusPurchase } from '@/billing/PlusPurchase';
 import { CitationCard } from '@/components/CitationCard';
 import { DisclaimerLine } from '@/components/DisclaimerLine';
 import { DisclosurePanel } from '@/components/DisclosurePanel';
@@ -290,18 +291,11 @@ export function ScenarioScreen() {
           lineHeight: typeScale.ui.lineHeight,
         }}
       >
-        {ownKey ? copy.ownKeyActive : quotaLine(preferences.quota.remaining)}
+        {ownKey ? copy.ownKeyActive : quotaLine(preferences.quota)}
       </Text>
       {spent ? (
         <View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={copy.ask.subscribe}
-            onPress={() => router.push('/settings/plus')}
-            style={{ minHeight: space.target, justifyContent: 'center' }}
-          >
-            <Text style={{ color: colors.accent }}>{copy.ask.subscribe}</Text>
-          </Pressable>
+          <PlusPurchase lane={preferences.quota.lane ?? 'free'} showPrice />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={copy.ask.ownKey}

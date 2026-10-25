@@ -63,7 +63,12 @@ export async function sendScenario(input: {
       limits: string[];
       citations: { sectionId: string; quote: string }[];
     };
-    quota?: { remaining: number; limit: number; resetsAt: string };
+    quota?: {
+      remaining: number;
+      limit: number;
+      resetsAt: string;
+      lane?: 'free' | 'plus';
+    };
     contentVersion?: string;
   };
   if (!payload.message) return { kind: 'provider' };

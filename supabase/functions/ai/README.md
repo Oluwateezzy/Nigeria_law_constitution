@@ -12,6 +12,8 @@ Completed requests update `quota_usage` for the install, the signed-in user, and
 
 Anonymous callers are allowed. `verify_jwt` is off for this function. Quota and citation checks run in `packages/domain`.
 
+The lane comes from `entitlements`. A missing or expired row is the free lane, 5 per Lagos day. An active Plus row is 100. A `plus` or `lane` field on the request does not change that. Store purchases are written by the RevenueCat webhook, and web purchases by the Stripe webhook. Own-key requests never call this function.
+
 Logs from `completeHostedProvision` keep status, token count, kind, content version, and a hash of the install id. They do not keep the question, the prompt, the section text, or the model output.
 
 A real staging run of `packages/content/eval/provision.json` needs `HOSTED_MODEL_KEY` in the function secrets. Until that key is set, CI runs the scripted provider only.

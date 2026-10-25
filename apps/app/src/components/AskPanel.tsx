@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { useAccount } from '@/account/AuthProvider';
+import { PlusPurchase } from '@/billing/PlusPurchase';
 import { readSupabasePublicConfig } from '@/account/client';
 import {
   appendThreadMessage,
@@ -336,18 +337,11 @@ function AskBody({
           lineHeight: typeScale.ui.lineHeight,
         }}
       >
-        {ownKey ? copy.ownKeyActive : quotaLine(preferences.quota.remaining)}
+        {ownKey ? copy.ownKeyActive : quotaLine(preferences.quota)}
       </Text>
       {spent ? (
         <View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={copy.ask.subscribe}
-            onPress={() => router.push('/settings/plus')}
-            style={{ minHeight: space.target, justifyContent: 'center' }}
-          >
-            <Text style={{ color: colors.accent }}>{copy.ask.subscribe}</Text>
-          </Pressable>
+          <PlusPurchase lane={preferences.quota.lane ?? 'free'} showPrice />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={copy.ask.ownKey}
