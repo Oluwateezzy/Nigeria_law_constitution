@@ -3,9 +3,20 @@ import {
   registryEntries,
   shippingInstrument,
 } from '@nigeria-law/content';
-import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
+import {
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+  type Href,
+} from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, Text, View, type TextInputInstance } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+  type TextInputInstance,
+} from 'react-native';
 import { ContinueCard } from '@/components/ContinueCard';
 import { InstrumentRow } from '@/components/InstrumentRow';
 import { Screen } from '@/components/Screen';
@@ -36,8 +47,12 @@ export default function LibraryScreen() {
   const { ready, position, refreshPosition, recentQueries, rememberSearch } =
     usePreferences();
   const searchIndex = useSearch();
-  const params = useLocalSearchParams<{ fromInstrument?: string | string[] }>();
+  const params = useLocalSearchParams<{
+    fromInstrument?: string | string[];
+    q?: string | string[];
+  }>();
   const fromInstrument = firstParam(params.fromInstrument);
+  const presetQuery = firstParam(params.q);
   const [query, setQuery] = useState('');
   const [focused, setFocused] = useState(false);
   const [limitedInstrument, setLimitedInstrument] = useState<string | null>(
@@ -80,6 +95,11 @@ export default function LibraryScreen() {
     if (!fromInstrument) return;
     inputRef.current?.focus();
   }, [fromInstrument]);
+  useEffect(() => {
+    if (!presetQuery) return;
+    setQuery(presetQuery);
+    setFocused(true);
+  }, [presetQuery]);
   useEffect(() => {
     if (!searchIndex.ready) return;
     const pending = Promise.resolve().then(() => {
@@ -149,7 +169,9 @@ export default function LibraryScreen() {
             borderRadius: radius.field,
             borderWidth: 1,
             borderColor: limitToInstrument ? colors.accent : colors.line,
-            backgroundColor: limitToInstrument ? colors.accent : colors.bgRaised,
+            backgroundColor: limitToInstrument
+              ? colors.accent
+              : colors.bgRaised,
           }}
         >
           <Text
@@ -163,10 +185,7 @@ export default function LibraryScreen() {
           </Text>
         </Pressable>
       ) : null}
-      <ScrollView
-        style={{ flex: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
         {searching ? (
           <View style={{ marginTop: space.unit * 2 }}>
             {!searchIndex.ready ? (

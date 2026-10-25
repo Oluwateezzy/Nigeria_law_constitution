@@ -34,8 +34,21 @@ export {
 export type { QuotaLane, QuotaSnapshot, QuotaSubject } from './quota';
 export {
   completeHostedProvision,
+  completeHostedScenario,
   retryHostedProvision,
 } from './hosted-complete';
+export type { ScenarioRequest } from './hosted-complete';
+export {
+  retrieveScenario,
+  scenarioConfidenceThreshold,
+  scenarioFactLimit,
+  scenarioMatchTokens,
+  scenarioMinimumTokens,
+  scenarioRetrievalCap,
+  scenarioSectionWindow,
+  windowSectionText,
+} from './retrieve';
+export type { ScenarioCandidate, ScenarioRetrieval } from './retrieve';
 export type {
   HostedErrorCode,
   HostedRequest,

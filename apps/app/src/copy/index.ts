@@ -37,6 +37,15 @@ export const copy = {
   scenario: {
     empty: 'A place to describe a situation is on its way.',
     title: 'Scenario',
+    description:
+      'See what the loaded Constitution and laws say about a situation',
+    explain: 'Explain',
+    newScenario: 'New scenario',
+    followUp: 'Ask a follow-up',
+    weak: 'Add a more specific description.',
+    search: 'Search',
+    open: 'Open',
+    saved: 'Saved scenarios',
   },
   ask: {
     explain: 'Explain this in plain language',

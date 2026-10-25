@@ -1,3 +1,4 @@
+import { validateCitations } from '@nigeria-law/domain';
 import { describe, expect, it } from 'vitest';
 import { retrySend, sendProvision, validateOwnKey, type AskHttp } from './send';
 
@@ -17,6 +18,15 @@ const answer = JSON.stringify({
 });
 
 describe('ask send', () => {
+  it('uses the shared citation validator', () => {
+    const checked = validateCitations(
+      [{ sectionId: section.id, quote: 'alpha   words\nonly' }],
+      [{ sectionId: section.id, plainText: section.plainText }],
+    );
+    expect(checked.removed).toBe(false);
+    expect(checked.citations).toHaveLength(1);
+  });
+
   it('does not send until the disclosure has been continued', async () => {
     const http: AskHttp = async () => {
       throw new Error('should not send');

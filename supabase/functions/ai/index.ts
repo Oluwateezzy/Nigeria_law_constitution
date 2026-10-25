@@ -5,6 +5,7 @@ import {
 import type { Instrument } from '../../../packages/content/src/schema.ts';
 import {
   completeHostedProvision,
+  completeHostedScenario,
   QuotaBook,
   type HostedErrorCode,
   type ProxyLog,
@@ -27,6 +28,7 @@ Deno.serve(async (request) => {
     installId?: string;
     contentVersion?: string;
     sectionId?: string;
+    retrievedSectionIds?: string[];
     messages?: { role: 'user' | 'assistant'; content: string }[];
   };
   try {
@@ -34,11 +36,15 @@ Deno.serve(async (request) => {
   } catch {
     return json({ code: 'payload_too_large' }, 400);
   }
+  const scenarioIds = (body.retrievedSectionIds ?? []).filter(
+    (id) => typeof id === 'string',
+  );
   if (
-    body.kind !== 'provision' ||
-    !body.sectionId ||
     !body.installId ||
-    !uuidPattern.test(body.installId)
+    !uuidPattern.test(body.installId) ||
+    (body.kind !== 'provision' && body.kind !== 'scenario') ||
+    (body.kind === 'provision' && !body.sectionId) ||
+    (body.kind === 'scenario' && scenarioIds.length === 0)
   ) {
     return json({ code: 'payload_too_large' }, 400);
   }
@@ -63,36 +69,64 @@ Deno.serve(async (request) => {
     if (folded) book.markFolded(userId, body.installId, now);
   }
   const logs: ProxyLog[] = [];
-  const located = findSection(loadedInstrument, body.sectionId);
-  const result = await completeHostedProvision(
-    {
-      kind: 'provision',
-      installId: body.installId,
-      userId,
-      ip,
-      lane: await laneFor(env, userId),
-      contentVersion: loadedInstrument.contentVersion,
-      sectionId: body.sectionId,
-      messages: body.messages ?? [],
-      now,
-    },
-    {
-      loadSection: () => {
-        if (!located) return null;
-        return {
-          id: located.section.id,
-          plainText: located.section.plainText,
-          path: readerPathLabel(loadedInstrument.shortTitle, located.trail),
-          citation: loadedInstrument.citation,
-          extent: loadedInstrument.extent,
-          contentVersion: loadedInstrument.contentVersion,
-        };
-      },
-      provider: openAiProvider(),
-      book,
-      logs,
-    },
-  );
+  const lane = await laneFor(env, userId);
+  const located =
+    body.kind === 'provision' && body.sectionId
+      ? findSection(loadedInstrument, body.sectionId)
+      : null;
+  const result =
+    body.kind === 'scenario'
+      ? await completeHostedScenario(
+          {
+            kind: 'scenario',
+            installId: body.installId,
+            userId,
+            ip,
+            lane,
+            contentVersion: loadedInstrument.contentVersion,
+            sectionIds: scenarioIds,
+            messages: body.messages ?? [],
+            now,
+          },
+          {
+            loadSection: (id) => loadedSection(id),
+            provider: openAiProvider(),
+            book,
+            logs,
+          },
+        )
+      : await completeHostedProvision(
+          {
+            kind: 'provision',
+            installId: body.installId,
+            userId,
+            ip,
+            lane,
+            contentVersion: loadedInstrument.contentVersion,
+            sectionId: body.sectionId ?? '',
+            messages: body.messages ?? [],
+            now,
+          },
+          {
+            loadSection: () => {
+              if (!located) return null;
+              return {
+                id: located.section.id,
+                plainText: located.section.plainText,
+                path: readerPathLabel(
+                  loadedInstrument.shortTitle,
+                  located.trail,
+                ),
+                citation: loadedInstrument.citation,
+                extent: loadedInstrument.extent,
+                contentVersion: loadedInstrument.contentVersion,
+              };
+            },
+            provider: openAiProvider(),
+            book,
+            logs,
+          },
+        );
   for (const line of logs) console.log(JSON.stringify(line));
   if (result.ok) {
     await persistQuota(env, {
@@ -121,6 +155,19 @@ Deno.serve(async (request) => {
     200,
   );
 });
+
+function loadedSection(id: string) {
+  const located = findSection(loadedInstrument, id);
+  if (!located) return null;
+  return {
+    id: located.section.id,
+    plainText: located.section.plainText,
+    path: readerPathLabel(loadedInstrument.shortTitle, located.trail),
+    citation: loadedInstrument.citation,
+    extent: loadedInstrument.extent,
+    contentVersion: loadedInstrument.contentVersion,
+  };
+}
 
 function openAiProvider() {
   return {

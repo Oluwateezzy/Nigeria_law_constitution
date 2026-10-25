@@ -4,6 +4,7 @@ import {
   type PromptSection,
 } from './assemble-prompt';
 import { parseModelPayload } from './model-payload';
+import { scenarioRetrievalCap } from './retrieve';
 import {
   countsAsRequest,
   QuotaBook,
@@ -39,7 +40,7 @@ export type ProxyLog = {
   at: string;
   status: number;
   tokens: number;
-  kind: 'provision';
+  kind: 'provision' | 'scenario';
   contentVersion: string;
   installHash: string;
 };
@@ -73,7 +74,7 @@ export type ModelProvider = {
 };
 
 function logLine(
-  request: HostedRequest,
+  request: { kind: ProxyLog['kind']; installId: string; now: Date },
   status: number,
   tokens: number,
   contentVersion: string,
@@ -154,6 +155,99 @@ export async function completeHostedProvision(
   return {
     ok: true,
     contentVersion: loaded.contentVersion,
+    quota,
+    message: {
+      role: 'assistant',
+      content: parsed.explanation,
+      illustration: parsed.illustration,
+      limits,
+      citations: checked.citations,
+    },
+  };
+}
+
+export type ScenarioRequest = {
+  kind: 'scenario';
+  installId: string;
+  userId: string | null;
+  ip: string;
+  lane: QuotaLane;
+  contentVersion: string;
+  sectionIds: readonly string[];
+  messages: readonly ChatMessage[];
+  now: Date;
+};
+
+export async function completeHostedScenario(
+  request: ScenarioRequest,
+  deps: {
+    loadSection: (sectionId: string) => LoadedSection | null;
+    provider: ModelProvider;
+    book: QuotaBook;
+    logs: ProxyLog[];
+  },
+): Promise<HostedResult> {
+  const subject = {
+    installId: request.installId,
+    userId: request.userId,
+    ip: request.ip,
+    lane: request.lane,
+    now: request.now,
+  };
+  const loaded = request.sectionIds
+    .slice(0, scenarioRetrievalCap)
+    .map((id) => deps.loadSection(id))
+    .filter((section): section is LoadedSection => section !== null);
+  if (loaded.length === 0) {
+    deps.logs.push(logLine(request, 404, 0, request.contentVersion));
+    return {
+      ok: false,
+      code: 'content_unknown_section',
+      quota: deps.book.snapshot(subject),
+    };
+  }
+  if (deps.book.blocked(subject)) {
+    deps.logs.push(logLine(request, 429, 0, loaded[0]!.contentVersion));
+    return {
+      ok: false,
+      code: 'quota_exceeded',
+      quota: deps.book.snapshot(subject),
+    };
+  }
+  let tokens = 0;
+  let parsed;
+  try {
+    const prompt = assemblePrompt({
+      kind: 'scenario',
+      retrieved: loaded,
+      messages: request.messages,
+    });
+    const completed = await deps.provider.complete(prompt);
+    tokens = completed.tokens;
+    parsed = parseModelPayload(completed.text);
+  } catch {
+    deps.logs.push(logLine(request, 502, tokens, loaded[0]!.contentVersion));
+    return {
+      ok: false,
+      code: 'provider_error',
+      quota: deps.book.snapshot(subject),
+    };
+  }
+  const checked = validateCitations(
+    parsed.citations,
+    loaded.map((section) => ({
+      sectionId: section.id,
+      plainText: section.plainText,
+    })),
+  );
+  const limits = checked.removed
+    ? [...parsed.limits, citationRemovedLimit]
+    : parsed.limits;
+  const quota = deps.book.commit(subject);
+  deps.logs.push(logLine(request, 200, tokens, loaded[0]!.contentVersion));
+  return {
+    ok: true,
+    contentVersion: loaded[0]!.contentVersion,
     quota,
     message: {
       role: 'assistant',

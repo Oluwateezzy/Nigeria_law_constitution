@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   assemblePrompt,
   mergeByUpdatedAt,
-  NotImplemented,
   parseQuery,
   validateCitations,
 } from './index';
@@ -16,9 +15,13 @@ describe('domain seams', () => {
       number: '1',
     });
     expect(validateCitations([], []).citations).toEqual([]);
-    expect(() => assemblePrompt({ kind: 'scenario', messages: [] })).toThrow(
-      NotImplemented,
-    );
+    expect(
+      assemblePrompt({
+        kind: 'scenario',
+        messages: [{ role: 'user', content: 'A short situation.' }],
+        retrieved: [],
+      }).system,
+    ).toContain('No section text was supplied.');
     expect(
       mergeByUpdatedAt(row, {
         ...row,

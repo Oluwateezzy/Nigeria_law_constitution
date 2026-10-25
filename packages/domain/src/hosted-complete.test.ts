@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   completeHostedProvision,
+  completeHostedScenario,
   retryHostedProvision,
   type ModelProvider,
 } from './hosted-complete';
 import { countsAsRequest, QuotaBook } from './quota';
-import { citationRemovedLimit } from './validate-citations';
+import { citationRemovedLimit, validateCitations } from './validate-citations';
 
 const now = new Date('2026-10-25T12:00:00.000Z');
 const section = {
@@ -196,5 +197,148 @@ describe('hosted provision', () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.quota.used).toBe(0);
+  });
+});
+
+function scenarioSection(
+  id: string,
+  plainText: string,
+  extent = 'The Federal Republic of Nigeria.',
+) {
+  return {
+    id,
+    plainText,
+    path: `Fixture / ${id}`,
+    citation: 'Fixture Act',
+    extent,
+    contentVersion: section.contentVersion,
+  };
+}
+
+describe('hosted scenario', () => {
+  it('drops an unknown id before the provider is called', async () => {
+    const calls: string[] = [];
+    const result = await completeHostedScenario(
+      {
+        kind: 'scenario',
+        installId: 'install-1',
+        userId: null,
+        ip: '203.0.113.8',
+        lane: 'free',
+        contentVersion: section.contentVersion,
+        sectionIds: ['missing', section.id],
+        messages: [{ role: 'user', content: 'A person was held overnight.' }],
+        now,
+      },
+      {
+        loadSection: (id) => (id === section.id ? { ...section } : null),
+        provider: provider(validBody(), calls),
+        book: new QuotaBook(),
+        logs: [],
+      },
+    );
+    expect(result.ok).toBe(true);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toContain(section.id);
+    expect(calls[0]).not.toContain('missing');
+    expect(validateCitations([], []).citations).toEqual([]);
+  });
+
+  it('ignores a ninth id', async () => {
+    const calls: string[] = [];
+    const ids = Array.from({ length: 9 }, (_, index) => `fixture:s:${index}`);
+    await completeHostedScenario(
+      {
+        kind: 'scenario',
+        installId: 'install-1',
+        userId: null,
+        ip: '203.0.113.8',
+        lane: 'free',
+        contentVersion: section.contentVersion,
+        sectionIds: ids,
+        messages: [{ role: 'user', content: 'A person was held overnight.' }],
+        now,
+      },
+      {
+        loadSection: (id) =>
+          scenarioSection(
+            id,
+            id === 'fixture:s:8' ? 'ninth-only-word' : `text for ${id}`,
+          ),
+        provider: provider(validBody('text for fixture:s:0'), calls),
+        book: new QuotaBook(),
+        logs: [],
+      },
+    );
+    expect(calls[0]).not.toContain('ninth-only-word');
+    expect(calls[0]).toContain('fixture:s:7');
+  });
+
+  it('puts a limited extent into the prompt', async () => {
+    const calls: string[] = [];
+    const extent = 'Nowhere. This fixture is not law.';
+    await completeHostedScenario(
+      {
+        kind: 'scenario',
+        installId: 'install-1',
+        userId: null,
+        ip: '203.0.113.8',
+        lane: 'free',
+        contentVersion: section.contentVersion,
+        sectionIds: ['example:s:36'],
+        messages: [{ role: 'user', content: 'Example words of a target.' }],
+        now,
+      },
+      {
+        loadSection: () =>
+          scenarioSection('example:s:36', 'Example words of a target.', extent),
+        provider: provider(validBody('Example words of a target.'), calls),
+        book: new QuotaBook(),
+        logs: [],
+      },
+    );
+    expect(calls[0]).toContain(extent);
+    expect(calls[0]).toContain('other laws may not be loaded');
+  });
+
+  it('shares the free counter with provision answers', async () => {
+    const book = new QuotaBook();
+    const provisionDeps = {
+      loadSection: () => section,
+      provider: provider(validBody(), []),
+      book,
+      logs: [],
+    };
+    for (let index = 0; index < 3; index += 1) {
+      expect((await completeHostedProvision(request(), provisionDeps)).ok).toBe(
+        true,
+      );
+    }
+    const scenarioDeps = {
+      loadSection: (id: string) => (id === section.id ? { ...section } : null),
+      provider: provider(validBody(), []),
+      book,
+      logs: [],
+    };
+    const scenarioRequest = {
+      kind: 'scenario' as const,
+      installId: 'install-1',
+      userId: null,
+      ip: '203.0.113.8',
+      lane: 'free' as const,
+      contentVersion: section.contentVersion,
+      sectionIds: [section.id],
+      messages: [{ role: 'user', content: 'A person was held overnight.' }],
+      now,
+    };
+    expect(
+      (await completeHostedScenario(scenarioRequest, scenarioDeps)).ok,
+    ).toBe(true);
+    expect(
+      (await completeHostedScenario(scenarioRequest, scenarioDeps)).ok,
+    ).toBe(true);
+    const sixth = await completeHostedProvision(request(), provisionDeps);
+    expect(sixth.ok).toBe(false);
+    if (!sixth.ok) expect(sixth.code).toBe('quota_exceeded');
   });
 });

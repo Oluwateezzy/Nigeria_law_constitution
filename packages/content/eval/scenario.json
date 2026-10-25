@@ -1,0 +1,79 @@
+[
+  {
+    "id": "detention",
+    "facts": "The police held him overnight. What does personal liberty say?",
+    "requiredIds": ["cfrn-1999:s:35"]
+  },
+  {
+    "id": "fair-hearing",
+    "facts": "A tribunal decided his case in private. What does fair hearing require?",
+    "requiredIds": ["cfrn-1999:s:36"]
+  },
+  {
+    "id": "privacy",
+    "facts": "Someone opened his letters and listened to telephone conversations. What about private and family life?",
+    "requiredIds": ["cfrn-1999:s:37"]
+  },
+  {
+    "id": "expression",
+    "facts": "A paper was stopped from publishing. What does freedom of expression say?",
+    "requiredIds": ["cfrn-1999:s:39"]
+  },
+  {
+    "id": "religion",
+    "facts": "He wants to change his religion and worship with others. What does freedom of religion say?",
+    "requiredIds": ["cfrn-1999:s:38"]
+  },
+  {
+    "id": "movement",
+    "facts": "A citizen was told he cannot reside in another state. What does freedom of movement say?",
+    "requiredIds": ["cfrn-1999:s:41"]
+  },
+  {
+    "id": "discrimination",
+    "facts": "She was refused a public post because of her sex. What does freedom from discrimination say?",
+    "requiredIds": ["cfrn-1999:s:42"]
+  },
+  {
+    "id": "property",
+    "facts": "The government took possession of his immovable property. What does compulsory acquisition say?",
+    "requiredIds": ["cfrn-1999:s:44"]
+  },
+  {
+    "id": "dignity",
+    "facts": "He was tortured while detained. What does dignity of the human person say?",
+    "requiredIds": ["cfrn-1999:s:34"]
+  },
+  {
+    "id": "life",
+    "facts": "Someone threatened to deprive him of his life. What does the right to life say?",
+    "requiredIds": ["cfrn-1999:s:33"]
+  },
+  {
+    "id": "assembly",
+    "facts": "People want to form a trade union and assemble. What does peaceful assembly say?",
+    "requiredIds": ["cfrn-1999:s:40"]
+  },
+  {
+    "id": "legal-aid",
+    "facts": "He wants to ask a High Court for legal aid after a right was contravened.",
+    "requiredIds": ["cfrn-1999:s:46"]
+  },
+  {
+    "id": "democracy",
+    "facts": "What does the Constitution say about democracy and social justice?",
+    "requiredIds": ["cfrn-1999:s:14"]
+  },
+  {
+    "id": "missing-act",
+    "facts": "xyzzy plugh occupancy",
+    "requiredIds": [],
+    "expectWeak": true
+  },
+  {
+    "id": "limited-extent",
+    "facts": "Example words of a target apply in this situation.",
+    "requiredIds": ["example:s:36"],
+    "notNationwide": ["example:s:36"]
+  }
+]
