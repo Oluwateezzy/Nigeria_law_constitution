@@ -28,7 +28,13 @@ export default function SettingsScreen() {
       <TopBar
         title={copy.settings.title}
         actionLabel={copy.settings.close}
-        onAction={() => router.back()}
+        onAction={() => {
+          if (router.canGoBack()) {
+            router.back();
+            return;
+          }
+          router.replace('/');
+        }}
       />
       <ScrollView style={{ flex: 1 }}>
         <Text

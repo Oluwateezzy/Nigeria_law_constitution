@@ -13,6 +13,8 @@ describe('secret paths', () => {
     expect(isSecretPath('certs/server.pem', rules)).toBe(true);
     expect(isSecretPath('keys/upload.p12', rules)).toBe(true);
     expect(isSecretPath('secrets/credentials.json', rules)).toBe(true);
+    expect(isSecretPath('android/release.keystore', rules)).toBe(true);
+    expect(isSecretPath('ios/GoogleService-Info.plist', rules)).toBe(true);
     expect(isSecretPath('README.md', rules)).toBe(false);
   });
 });

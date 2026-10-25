@@ -33,7 +33,13 @@ export default function AccountScreen() {
       <TopBar
         title={copy.account.title}
         actionLabel={copy.settings.close}
-        onAction={() => router.back()}
+        onAction={() => {
+          if (router.canGoBack()) {
+            router.back();
+            return;
+          }
+          router.replace('/settings');
+        }}
       />
       {signedIn && label ? (
         <Text

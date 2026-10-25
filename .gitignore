@@ -4,10 +4,21 @@ docsplan/
 # Dependencies
 node_modules/
 
-# Secrets and local env
+# Secrets and local env. Examples stay tracked.
 .env
 .env.*
 !.env.example
+*.pem
+*.p12
+*.p8
+*.key
+*.jks
+*.keystore
+*.mobileprovision
+credentials.json
+service-account.json
+google-services.json
+GoogleService-Info.plist
 
 # Expo
 .expo/
@@ -27,3 +38,13 @@ ios/Pods/
 android/.gradle/
 android/app/build/
 android/build/
+.kotlin/
+*.orig.*
+
+# Local tool caches
+.pnpm-store/
+.metro-health-check*
+coverage/
+supabase/.temp/
+supabase/.branches/
+.supabase/

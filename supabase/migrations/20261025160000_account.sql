@@ -7,9 +7,15 @@
 
 create schema if not exists auth;
 
-create table if not exists auth.users (
-  id uuid primary key
-);
+do $$
+begin
+  if to_regclass('auth.users') is null then
+    create table auth.users (
+      id uuid primary key
+    );
+  end if;
+end
+$$;
 
 do $$
 begin
