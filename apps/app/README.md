@@ -34,9 +34,11 @@ Empty examples live in `apps/app/.env.example` (client) and `supabase/.env.examp
 
 | Secret                    | Variable                             | Where it lives                  | Client |
 | ------------------------- | ------------------------------------ | ------------------------------- | ------ |
-| Supabase URL              | `EXPO_PUBLIC_SUPABASE_URL`           | App env, all variants           | Yes    |
-| Supabase anon key         | `EXPO_PUBLIC_SUPABASE_ANON_KEY`      | App env, all variants           | Yes    |
-| Supabase service role     | `SUPABASE_SERVICE_ROLE_KEY`          | Supabase function secrets       | Never  |
+| Supabase URL, staging     | `EXPO_PUBLIC_SUPABASE_URL`           | App env for local and preview. A separate Supabase project from production | Yes    |
+| Supabase anon key, staging | `EXPO_PUBLIC_SUPABASE_ANON_KEY`     | App env for local and preview. Not the service role | Yes    |
+| Supabase URL, production  | `EXPO_PUBLIC_SUPABASE_URL`           | App env for production. A separate Supabase project from staging | Yes    |
+| Supabase anon key, production | `EXPO_PUBLIC_SUPABASE_ANON_KEY`  | App env for production. Not the service role | Yes    |
+| Supabase service role     | `SUPABASE_SERVICE_ROLE_KEY`          | Function secrets on that same project | Never  |
 | Hosted model key          | `HOSTED_MODEL_KEY`                   | Supabase function secrets       | Never  |
 | RevenueCat public SDK key | `EXPO_PUBLIC_REVENUECAT_SDK_KEY`     | App env, preview and production | Yes    |
 | RevenueCat secret         | `REVENUECAT_SECRET_KEY`              | Supabase function secrets       | Never  |

@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from 'react';
 import { ensureNotesTable } from '@/notes/repository';
+import { ensureSyncTables } from '@/sync/schema';
 import type { SqlDatabase } from './driver';
 import { openExpoSearchDatabase } from './expo';
 import { ensureIndex, search as runSearch, searchTimings } from './repository';
@@ -53,6 +54,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
           bundledIndexKey(instruments, aliases),
         );
         await ensureNotesTable(db);
+        await ensureSyncTables(db);
         if (!mounted) return;
         dbRef.current = db;
         const ms = elapsedNow() - started;

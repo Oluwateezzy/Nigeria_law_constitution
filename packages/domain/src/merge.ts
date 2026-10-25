@@ -1,5 +1,3 @@
-import { NotImplemented } from './not-implemented';
-
 export type Timestamped = {
   id: string;
   updatedAt: string;
@@ -10,7 +8,9 @@ export function mergeByUpdatedAt<T extends Timestamped>(
   local: T,
   remote: T,
 ): T {
-  void local;
-  void remote;
-  throw new NotImplemented('mergeByUpdatedAt');
+  if (remote.updatedAt > local.updatedAt) return remote;
+  if (local.updatedAt > remote.updatedAt) return local;
+  if (remote.deletedAt && !local.deletedAt) return remote;
+  if (local.deletedAt && !remote.deletedAt) return local;
+  return remote;
 }

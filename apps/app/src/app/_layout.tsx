@@ -6,9 +6,12 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme, View } from 'react-native';
+import '@/account/crypto-polyfill';
+import { AuthProvider } from '@/account/AuthProvider';
 import { NotesProvider } from '@/notes/NotesProvider';
 import { PreferencesProvider } from '@/persistence/PreferencesProvider';
 import { SearchProvider } from '@/search/SearchProvider';
+import { SyncProvider } from '@/sync/SyncProvider';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { palette } from '@/theme/tokens';
 
@@ -29,9 +32,13 @@ export default function RootLayout() {
     <ThemeProvider>
       <PreferencesProvider>
         <SearchProvider>
-          <NotesProvider>
-            <ThemedStack />
-          </NotesProvider>
+          <AuthProvider>
+            <NotesProvider>
+              <SyncProvider>
+                <ThemedStack />
+              </SyncProvider>
+            </NotesProvider>
+          </AuthProvider>
         </SearchProvider>
       </PreferencesProvider>
     </ThemeProvider>

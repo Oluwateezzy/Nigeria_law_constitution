@@ -19,6 +19,11 @@ describe('domain seams', () => {
     expect(() => assemblePrompt({ kind: 'provision', messages: [] })).toThrow(
       NotImplemented,
     );
-    expect(() => mergeByUpdatedAt(row, row)).toThrow(NotImplemented);
+    expect(
+      mergeByUpdatedAt(row, {
+        ...row,
+        updatedAt: '2026-10-25T01:00:00.000Z',
+      }).updatedAt,
+    ).toBe('2026-10-25T01:00:00.000Z');
   });
 });

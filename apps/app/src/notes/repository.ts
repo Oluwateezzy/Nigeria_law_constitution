@@ -192,6 +192,43 @@ export async function saveDraft(
   return note;
 }
 
+export async function listAllNotes(db: SqlDatabase): Promise<Note[]> {
+  const rows = await db.all(`SELECT * FROM notes ORDER BY updated_at DESC`);
+  return rows
+    .map((row) => read(row))
+    .filter((note): note is Note => note !== null);
+}
+
+export async function replaceNote(db: SqlDatabase, note: Note): Promise<void> {
+  await db.run(
+    `INSERT INTO notes (
+      id, section_id, instrument_id, body, created_at, updated_at, deleted_at, sync_state
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET
+      section_id = excluded.section_id,
+      instrument_id = excluded.instrument_id,
+      body = excluded.body,
+      created_at = excluded.created_at,
+      updated_at = excluded.updated_at,
+      deleted_at = excluded.deleted_at,
+      sync_state = excluded.sync_state`,
+    [
+      note.id,
+      note.sectionId,
+      note.instrumentId,
+      note.body,
+      note.createdAt,
+      note.updatedAt,
+      note.deletedAt,
+      note.syncState,
+    ],
+  );
+}
+
+export async function deleteAllNotes(db: SqlDatabase): Promise<void> {
+  await db.exec('DELETE FROM notes');
+}
+
 export async function dismissDraft(
   db: SqlDatabase,
   input: {

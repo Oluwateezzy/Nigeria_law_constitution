@@ -1,0 +1,5 @@
+project_id = "nigeria-law"
+
+[auth]
+site_url = "http://localhost:8081"
+additional_redirect_urls = ["nigerialaw://settings", "http://localhost:8081/settings"]

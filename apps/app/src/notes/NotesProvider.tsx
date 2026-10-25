@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { NoteSheet } from '@/components/NoteSheet';
 import { useSearch } from '@/search/SearchProvider';
+import { onNotesPulled, notifyNotesChanged } from '@/sync/bus';
 import { noteSections } from './catalog';
 import {
   dismissDraft,
@@ -86,6 +87,12 @@ export function NotesProvider({ children }: { children: ReactNode }) {
     remember(await listLiving(db));
   }, [database, remember]);
 
+  useEffect(() => {
+    return onNotesPulled(() => {
+      void refresh();
+    });
+  }, [refresh]);
+
   const openSection = useCallback(
     (input: { sectionId: string; instrumentId: string }) => {
       const existing = readerNote(notesRef.current, input.sectionId);
@@ -143,6 +150,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       if (!saved) return null;
       draftRef.current = { ...current, id: saved.id };
       await refresh();
+      notifyNotesChanged();
       return saved.id;
     },
     [database, refresh],
@@ -163,6 +171,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
         now: isoNow(),
       });
       await refresh();
+      notifyNotesChanged();
     },
     [database, refresh],
   );
@@ -175,6 +184,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
       if (!db) return;
       await tombstoneNote(db, id, isoNow());
       await refresh();
+      notifyNotesChanged();
     },
     [database, refresh],
   );

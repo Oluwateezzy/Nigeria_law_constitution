@@ -6,8 +6,13 @@ export type ReadingPosition = {
 };
 
 const positionKey = 'reading-position';
+const positionAtKey = 'reading-position-at';
 const textSizeKey = 'text-size';
 const recentKey = 'recent-queries';
+const accountLineKey = 'account-line-dismissed';
+const uploadChoiceKey = 'upload-choice';
+const uploadChoiceAtKey = 'upload-choice-at';
+const lastSyncKey = 'last-sync-at';
 const recentLimit = 8;
 
 export class MemoryDatabase {
@@ -67,7 +72,10 @@ export function readRecentQueries(database: MemoryDatabase): string[] {
   }
 }
 
-export function rememberQuery(database: MemoryDatabase, query: string): string[] {
+export function rememberQuery(
+  database: MemoryDatabase,
+  query: string,
+): string[] {
   const trimmed = query.trim();
   const current = readRecentQueries(database);
   if (!trimmed) return current;
@@ -82,8 +90,14 @@ export function rememberQuery(database: MemoryDatabase, query: string): string[]
 export function writeReadingPosition(
   database: MemoryDatabase,
   position: ReadingPosition,
+  updatedAt = new Date().toISOString(),
 ): void {
   database.set(positionKey, JSON.stringify(position));
+  database.set(positionAtKey, updatedAt);
+}
+
+export function readPositionUpdatedAt(database: MemoryDatabase): string | null {
+  return database.get(positionAtKey);
 }
 
 export function readReadingPosition(
@@ -123,4 +137,41 @@ export function readTextSize(database: MemoryDatabase): TextSizeStep {
     return Number(raw) as TextSizeStep;
   }
   return 1;
+}
+
+export function readAccountLineDismissed(database: MemoryDatabase): boolean {
+  return database.get(accountLineKey) === '1';
+}
+
+export function writeAccountLineDismissed(database: MemoryDatabase): void {
+  database.set(accountLineKey, '1');
+}
+
+export function readUploadChoice(
+  database: MemoryDatabase,
+): 'upload' | 'keep' | null {
+  const raw = database.get(uploadChoiceKey);
+  if (raw === 'upload' || raw === 'keep') return raw;
+  return null;
+}
+
+export function readUploadChoiceAt(database: MemoryDatabase): string | null {
+  return database.get(uploadChoiceAtKey);
+}
+
+export function writeUploadChoice(
+  database: MemoryDatabase,
+  choice: 'upload' | 'keep',
+  at: string,
+): void {
+  database.set(uploadChoiceKey, choice);
+  database.set(uploadChoiceAtKey, at);
+}
+
+export function readLastSyncAt(database: MemoryDatabase): string | null {
+  return database.get(lastSyncKey);
+}
+
+export function writeLastSyncAt(database: MemoryDatabase, at: string): void {
+  database.set(lastSyncKey, at);
 }
