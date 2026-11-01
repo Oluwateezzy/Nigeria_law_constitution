@@ -19,6 +19,7 @@ import {
   elevationTokens,
   gradient,
   palette,
+  type ColorSchemeName,
   type Palette,
 } from './tokens';
 
@@ -32,7 +33,7 @@ export type ThemeValue = {
     hero: readonly [string, string];
     trivia: readonly [string, string];
   };
-  elevation: (typeof elevationTokens)['light'];
+  elevation: (typeof elevationTokens)[ColorSchemeName];
 };
 
 const ThemeContext = createContext<ThemeValue | null>(null);

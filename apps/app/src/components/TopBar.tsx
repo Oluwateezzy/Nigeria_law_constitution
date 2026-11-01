@@ -36,8 +36,8 @@ export function TopBar({
           <Image
             source={
               scheme === 'dark'
-                ? require('../../assets/brand/logo-mono-dark@2x.png')
-                : require('../../assets/brand/logo@2x.png')
+                ? require('../../assets/brand/logo-mono-dark.png')
+                : require('../../assets/brand/logo.png')
             }
             style={{ width: 32, height: 32, borderRadius: radius.sm }}
             accessibilityLabel="What Does The Law Say emblem"
@@ -45,8 +45,8 @@ export function TopBar({
           <Image
             source={
               scheme === 'dark'
-                ? require('../../assets/brand/wordmark-dark@2x.png')
-                : require('../../assets/brand/wordmark@2x.png')
+                ? require('../../assets/brand/wordmark-dark.png')
+                : require('../../assets/brand/wordmark.png')
             }
             style={{ width: 160, height: 36, resizeMode: 'contain' }}
             accessibilityLabel="What Does The Law Say"

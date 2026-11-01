@@ -35,7 +35,7 @@ import { readerHref } from '@/reader/linking';
 import { activeResultIndex, searchCursor } from '@/search/keyboard';
 import { useSearch } from '@/search/SearchProvider';
 import type { SearchResult } from '@/search/repository';
-import { radius, space, type as typeScale } from '@/theme/tokens';
+import { fonts, radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 function firstParam(value: string | string[] | undefined): string {

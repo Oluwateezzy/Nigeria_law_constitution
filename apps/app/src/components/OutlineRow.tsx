@@ -1,5 +1,5 @@
 import { Pressable, Text } from 'react-native';
-import { space, type as typeScale } from '@/theme/tokens';
+import { fonts, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type OutlineRowProps = {
@@ -25,21 +25,25 @@ export function OutlineRow({
       accessibilityLabel={label}
       accessibilityState={expanded === undefined ? undefined : { expanded }}
       onPress={onPress}
-      style={{
+      style={({ pressed }) => ({
         minHeight: space.target,
         justifyContent: 'center',
-        paddingLeft: depth * space.unit * 4,
-        paddingVertical: space.unit * 2,
+        paddingLeft: depth * space.md,
+        paddingVertical: space.sm,
+        paddingRight: space.sm,
         borderBottomWidth: 1,
         borderBottomColor: colors.line,
-      }}
+        backgroundColor: pressed ? colors.primarySoft : 'transparent',
+      })}
     >
       {kicker ? (
         <Text
           style={{
-            color: colors.inkMuted,
-            fontSize: typeScale.disclaimer.fontSize,
-            lineHeight: typeScale.disclaimer.lineHeight,
+            color: colors.primary,
+            fontFamily: fonts.interMedium,
+            fontSize: typeScale.caption.fontSize,
+            lineHeight: typeScale.caption.lineHeight,
+            fontWeight: '600',
           }}
         >
           {kicker}
@@ -48,8 +52,9 @@ export function OutlineRow({
       <Text
         style={{
           color: colors.ink,
-          fontSize: typeScale.ui.fontSize,
-          lineHeight: typeScale.ui.lineHeight,
+          fontFamily: fonts.inter,
+          fontSize: typeScale.body.fontSize,
+          lineHeight: typeScale.body.lineHeight,
         }}
       >
         {title}

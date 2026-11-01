@@ -35,9 +35,8 @@ export function getElevation(
         ? `rgba(0, 0, 0, ${spec.opacity})`
         : `rgba(0, 0, 0, ${spec.opacity})`;
     return {
-      // @ts-expect-error web boxShadow in RNW
       boxShadow: `0px ${spec.offsetY}px ${spec.radius}px ${rgba}`,
-    };
+    } as unknown as ViewStyle;
   }
 
   if (Platform.OS === 'android') {

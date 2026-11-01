@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import { space, type as typeScale } from '@/theme/tokens';
+import { fonts, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 export function EmptyState({ message }: { message: string }) {
@@ -8,15 +8,19 @@ export function EmptyState({ message }: { message: string }) {
     <View
       style={{
         flex: 1,
+        alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: space.unit * 6,
+        paddingVertical: space.xl,
+        paddingHorizontal: space.md,
       }}
     >
       <Text
         style={{
-          color: colors.ink,
-          fontSize: typeScale.ui.fontSize,
-          lineHeight: typeScale.ui.lineHeight,
+          color: colors.inkMuted,
+          fontFamily: fonts.inter,
+          fontSize: typeScale.body.fontSize,
+          lineHeight: typeScale.body.lineHeight,
+          textAlign: 'center',
         }}
       >
         {message}

@@ -360,7 +360,7 @@ function SectionReader({
               >
                 <Text
                   style={{
-                    color: colors.accent,
+                    color: colors.primary,
                     fontSize: typeScale.ui.fontSize,
                     lineHeight: typeScale.ui.lineHeight,
                   }}
@@ -503,7 +503,7 @@ function MissingSection({
       >
         <Text
           style={{
-            color: colors.accent,
+            color: colors.primary,
             fontSize: typeScale.ui.fontSize,
             lineHeight: typeScale.ui.lineHeight,
           }}

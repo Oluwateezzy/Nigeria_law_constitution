@@ -13,7 +13,7 @@ export function getGlassStyle(
   const { border = true } = options;
   const currentPalette = palette[scheme];
 
-  const baseStyle: ViewStyle = {
+  const baseStyle: Record<string, unknown> = {
     backgroundColor: currentPalette.bgGlass,
   };
 
@@ -23,14 +23,9 @@ export function getGlassStyle(
   }
 
   if (Platform.OS === 'web') {
-    return {
-      ...baseStyle,
-      // @ts-expect-error web backdropFilter in RNW
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-    };
+    baseStyle.backdropFilter = 'blur(20px)';
+    baseStyle.WebkitBackdropFilter = 'blur(20px)';
   }
 
-  // Native: Semi-transparent background with border gives frosted glass aesthetic
-  return baseStyle;
+  return baseStyle as ViewStyle;
 }
