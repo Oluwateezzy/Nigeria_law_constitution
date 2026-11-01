@@ -1,19 +1,30 @@
-import { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  type ScrollViewInstance,
 } from 'react-native';
+import { PressableCard } from '@/components/PressableCard';
 import { Screen } from '@/components/Screen';
+import { SkeletonLoader } from '@/components/SkeletonLoader';
 import { TopBar } from '@/components/TopBar';
 import { fonts, radius, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 export default function DiscussScreen() {
-  const { colors, elevation } = useTheme();
+  const { colors, elevation, reduceMotion } = useTheme();
   const [filter, setFilter] = useState<'public' | 'private'>('public');
+  const scrollRef = useRef<ScrollViewInstance>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      scrollRef.current?.scrollTo({ y: 0, animated: !reduceMotion });
+    }, [reduceMotion]),
+  );
 
   const discussions = [
     {
@@ -95,7 +106,11 @@ export default function DiscussScreen() {
         </Pressable>
       </View>
 
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollRef}
+        style={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Create Discussion CTA Card */}
         <View
           style={[
@@ -126,16 +141,13 @@ export default function DiscussScreen() {
         {/* Discussion List */}
         <View style={styles.list}>
           {discussions.map((item) => (
-            <View
+            <PressableCard
               key={item.id}
-              style={[
-                styles.discussionCard,
-                elevation[1],
-                {
-                  backgroundColor: colors.bgRaised,
-                  borderColor: colors.line,
-                },
-              ]}
+              elevationLevel={1}
+              style={styles.discussionCard}
+              contentStyle={styles.discussionCardContent}
+              accessibilityLabel={item.title}
+              onPress={() => undefined}
             >
               <View style={styles.cardHeader}>
                 <View
@@ -167,7 +179,7 @@ export default function DiscussScreen() {
                   </Text>
                 </View>
               </View>
-            </View>
+            </PressableCard>
           ))}
         </View>
       </ScrollView>
@@ -231,9 +243,8 @@ const styles = StyleSheet.create({
     gap: space.md,
     paddingBottom: space.xl,
   },
-  discussionCard: {
-    borderRadius: radius.card,
-    borderWidth: 1,
+  discussionCard: {},
+  discussionCardContent: {
     padding: space.md,
   },
   cardHeader: {

@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -12,6 +13,7 @@ import { motionDuration, type MotionKind } from './motion';
 import {
   readThemePreference,
   resolveColorScheme,
+  writeThemePreference,
   type ThemePreference,
 } from './preference';
 import { themePreferenceStore } from './storage';
@@ -27,6 +29,7 @@ export type ThemeValue = {
   scheme: 'light' | 'dark';
   colors: Palette;
   preference: ThemePreference;
+  setPreference: (preference: ThemePreference) => Promise<void>;
   reduceMotion: boolean;
   motionDuration: (kind: MotionKind) => number;
   gradient: {
@@ -76,12 +79,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const handleSetPreference = useCallback(async (next: ThemePreference) => {
+    setPreference(next);
+    await writeThemePreference(themePreferenceStore, next);
+  }, []);
+
   const value = useMemo<ThemeValue>(() => {
     const scheme = resolveColorScheme(preference, systemScheme);
     return {
       scheme,
       colors: palette[scheme],
       preference,
+      setPreference: handleSetPreference,
       reduceMotion,
       motionDuration: (kind) => motionDuration(kind, reduceMotion),
       gradient: {
@@ -90,7 +99,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       },
       elevation: elevationTokens[scheme],
     };
-  }, [preference, reduceMotion, systemScheme]);
+  }, [handleSetPreference, preference, reduceMotion, systemScheme]);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;

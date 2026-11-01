@@ -73,7 +73,10 @@ export function ProvisionBody({
             style={{
               flexDirection: 'row',
               alignItems: 'flex-start',
-              paddingLeft: line.depth * space.unit * 4,
+              paddingLeft: line.depth > 0 ? space.md : 0,
+              marginLeft: line.depth > 0 ? (line.depth - 1) * space.unit * 3 : 0,
+              borderLeftWidth: line.depth > 0 ? 2 : 0,
+              borderLeftColor: colors.primarySoft,
             }}
           >
             {line.marker ? (

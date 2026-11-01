@@ -42,7 +42,7 @@ export const copy = {
   },
   scenario: {
     empty: 'A place to describe a situation is on its way.',
-    title: 'Scenario',
+    title: 'What Does The Law Say',
     description:
       'See what the loaded Constitution and laws say about a situation',
     explain: 'Explain',

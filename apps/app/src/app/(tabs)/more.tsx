@@ -1,10 +1,14 @@
-import { router, type Href } from 'expo-router';
+import { router, useFocusEffect, type Href } from 'expo-router';
+import { useCallback, useRef } from 'react';
 import {
+  Image,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  type ScrollViewInstance,
 } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { TopBar } from '@/components/TopBar';
@@ -12,11 +16,18 @@ import { fonts, radius, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 export default function MoreScreen() {
-  const { colors, elevation } = useTheme();
+  const { colors, scheme, elevation, reduceMotion } = useTheme();
+  const scrollRef = useRef<ScrollViewInstance>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      scrollRef.current?.scrollTo({ y: 0, animated: !reduceMotion });
+    }, [reduceMotion]),
+  );
 
   const sections = [
     {
-      title: 'FEATURES & EXPLORATION',
+      title: 'EXPLORATION & CITATIONS',
       items: [
         {
           label: 'What Does The Law Say? (Scenario)',
@@ -27,13 +38,13 @@ export default function MoreScreen() {
         {
           label: 'Crimes & Penalties Directory',
           subtitle: 'Search offences, jail terms, and bail eligibility',
-          route: '/scenario' as Href,
+          route: '/scenario?q=Crimes%20and%20penalties' as Href,
           icon: '⚖️',
         },
         {
           label: 'Know Your Law Trivia',
-          subtitle: 'Test your legal knowledge and rights',
-          route: '/scenario' as Href,
+          subtitle: 'Test your legal knowledge and civic rights',
+          route: '/scenario?q=Daily%20trivia%20challenge' as Href,
           icon: '🏆',
         },
       ],
@@ -42,14 +53,14 @@ export default function MoreScreen() {
       title: 'PREFERENCES & CONFIGURATION',
       items: [
         {
-          label: 'General Settings',
-          subtitle: 'Theme, reading size, text display preferences',
+          label: 'Reading & Theme Settings',
+          subtitle: 'Text size, light/dark mode, reduced motion',
           route: '/settings' as Href,
           icon: '⚙️',
         },
         {
           label: 'AI & Citation Intelligence',
-          subtitle: 'Model selection, API keys, quota management',
+          subtitle: 'Model quota, own API key configuration',
           route: '/settings/ai' as Href,
           icon: '🤖',
         },
@@ -62,19 +73,27 @@ export default function MoreScreen() {
       ],
     },
     {
-      title: 'LEGAL & ABOUT',
+      title: 'LEGAL & COMPLIANCE',
       items: [
         {
-          label: 'About What Does The Law Say',
-          subtitle: 'Open legal access for Nigeria • Version 2.0.0',
-          route: '/settings' as Href,
-          icon: '🇳🇬',
+          label: 'Terms of Use',
+          subtitle: 'Open legal access policy and usage terms',
+          route: '/settings/terms' as Href,
+          icon: '📄',
         },
         {
-          label: 'Terms of Use & Privacy',
-          subtitle: 'Data handling and legal disclaimer',
-          route: '/settings' as Href,
+          label: 'Privacy Policy',
+          subtitle: 'Offline-first, on-device data and telemetry',
+          route: '/settings/privacy' as Href,
           icon: '🛡️',
+        },
+        {
+          label: 'Support & Community Feedback',
+          subtitle: 'Report a legal typo or suggest an Act',
+          action: () => {
+            Linking.openURL('mailto:support@nigerialaw.app?subject=Feedback');
+          },
+          icon: '📬',
         },
       ],
     },
@@ -84,7 +103,12 @@ export default function MoreScreen() {
     <Screen>
       <TopBar title="More" />
 
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollRef}
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {sections.map((section) => (
           <View key={section.title} style={styles.section}>
             <Text style={[styles.sectionHeader, { color: colors.inkMuted }]}>
@@ -101,44 +125,89 @@ export default function MoreScreen() {
                 },
               ]}
             >
-              {section.items.map((item, index) => (
-                <Pressable
-                  key={item.label}
-                  onPress={() => router.push(item.route)}
-                  accessibilityRole="button"
-                  accessibilityLabel={item.label}
-                  style={({ pressed }) => [
-                    styles.row,
-                    index < section.items.length - 1 && {
-                      borderBottomWidth: 1,
-                      borderBottomColor: colors.line,
-                    },
-                    {
-                      backgroundColor: pressed
-                        ? colors.line + '40'
-                        : 'transparent',
-                    },
-                  ]}
-                >
-                  <Text style={styles.icon}>{item.icon}</Text>
-                  <View style={styles.rowText}>
-                    <Text style={[styles.label, { color: colors.ink }]}>
-                      {item.label}
+              {section.items.map((item, index) => {
+                const handlePress = () => {
+                  if ('action' in item && item.action) {
+                    item.action();
+                  } else if ('route' in item && item.route) {
+                    router.push(item.route);
+                  }
+                };
+
+                return (
+                  <Pressable
+                    key={item.label}
+                    onPress={handlePress}
+                    accessibilityRole="button"
+                    accessibilityLabel={item.label}
+                    style={({ pressed }) => [
+                      styles.row,
+                      index < section.items.length - 1 && {
+                        borderBottomWidth: 1,
+                        borderBottomColor: colors.line,
+                      },
+                      {
+                        backgroundColor: pressed
+                          ? colors.line + '30'
+                          : 'transparent',
+                      },
+                    ]}
+                  >
+                    <Text style={styles.icon}>{item.icon}</Text>
+                    <View style={styles.rowText}>
+                      <Text style={[styles.label, { color: colors.ink }]}>
+                        {item.label}
+                      </Text>
+                      <Text
+                        style={[styles.subtitle, { color: colors.inkMuted }]}
+                      >
+                        {item.subtitle}
+                      </Text>
+                    </View>
+                    <Text style={[styles.chevron, { color: colors.inkMuted }]}>
+                      ›
                     </Text>
-                    <Text
-                      style={[styles.subtitle, { color: colors.inkMuted }]}
-                    >
-                      {item.subtitle}
-                    </Text>
-                  </View>
-                  <Text style={[styles.chevron, { color: colors.inkMuted }]}>
-                    ›
-                  </Text>
-                </Pressable>
-              ))}
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
         ))}
+
+        {/* About App Section with Brand Logo (V2-P3-T5) */}
+        <View
+          style={[
+            styles.aboutCard,
+            elevation[1],
+            {
+              backgroundColor: colors.bgRaised,
+              borderColor: colors.line,
+            },
+          ]}
+        >
+          <Image
+            source={
+              scheme === 'dark'
+                ? require('../../../assets/brand/logo-mono-dark.png')
+                : require('../../../assets/brand/logo.png')
+            }
+            style={styles.aboutLogo}
+            resizeMode="contain"
+          />
+          <Text style={[styles.aboutTitle, { color: colors.ink }]}>
+            What Does The Law Say
+          </Text>
+          <Text style={[styles.aboutVersion, { color: colors.primary }]}>
+            Version 2.0.0 (Build 2026.11)
+          </Text>
+          <Text style={[styles.aboutDesc, { color: colors.inkMuted }]}>
+            Open access to the Laws of the Federation of Nigeria and the 1999
+            Constitution. Fast, offline-first, verified.
+          </Text>
+          <Text style={[styles.aboutCopyright, { color: colors.inkMuted }]}>
+            © 2026 Nigeria Legal Initiative • Non-commercial legal awareness
+          </Text>
+        </View>
       </ScrollView>
     </Screen>
   );
@@ -147,6 +216,9 @@ export default function MoreScreen() {
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: space.xl,
   },
   section: {
     marginTop: space.lg,
@@ -194,5 +266,42 @@ const styles = StyleSheet.create({
   chevron: {
     fontSize: 20,
     fontWeight: '300',
+  },
+  aboutCard: {
+    alignItems: 'center',
+    borderRadius: radius.card,
+    borderWidth: 1,
+    padding: space.lg,
+    marginTop: space.xl,
+    marginBottom: space.lg,
+  },
+  aboutLogo: {
+    width: 64,
+    height: 64,
+    marginBottom: space.sm,
+  },
+  aboutTitle: {
+    fontFamily: fonts.interBold,
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  aboutVersion: {
+    fontFamily: fonts.interMedium,
+    fontSize: 12,
+    marginBottom: space.sm,
+  },
+  aboutDesc: {
+    fontFamily: fonts.interRegular,
+    fontSize: 12,
+    lineHeight: 17,
+    textAlign: 'center',
+    marginBottom: space.md,
+    maxWidth: 300,
+  },
+  aboutCopyright: {
+    fontFamily: fonts.interRegular,
+    fontSize: 11,
+    textAlign: 'center',
   },
 });

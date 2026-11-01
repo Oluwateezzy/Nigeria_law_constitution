@@ -1,7 +1,15 @@
-import { router, type Href } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { router, useFocusEffect, type Href } from 'expo-router';
+import { useCallback, useRef } from 'react';
+import {
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+  type ScrollViewInstance,
+} from 'react-native';
 import { showAccountLine } from '@/account/line';
 import { EmptyState } from '@/components/EmptyState';
+import { PressableCard } from '@/components/PressableCard';
 import { Screen } from '@/components/Screen';
 import { TopBar } from '@/components/TopBar';
 import { copy } from '@/copy';
@@ -10,13 +18,20 @@ import { useNotes } from '@/notes/NotesProvider';
 import { usePreferences } from '@/persistence/PreferencesProvider';
 import { groupLivingNotes, unattachedGroupId } from '@/notes/present';
 import { readerHref } from '@/reader/linking';
-import { space, type as typeScale } from '@/theme/tokens';
+import { fonts, radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 export default function NotesScreen() {
-  const { colors } = useTheme();
+  const { colors, elevation, reduceMotion } = useTheme();
   const { notes, openNote, openStandalone } = useNotes();
   const { accountLineDismissed, dismissAccountLine } = usePreferences();
+  const scrollRef = useRef<ScrollViewInstance>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      scrollRef.current?.scrollTo({ y: 0, animated: !reduceMotion });
+    }, [reduceMotion]),
+  );
   const groups = groupLivingNotes(notes, noteSections());
   const showLine = showAccountLine(notes.length, accountLineDismissed);
   return (
@@ -70,81 +85,87 @@ export default function NotesScreen() {
       {groups.length === 0 ? (
         <EmptyState message={copy.notes.empty} />
       ) : (
-        <ScrollView style={{ flex: 1 }}>
+        <ScrollView
+          ref={scrollRef}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: space.xl }}
+          showsVerticalScrollIndicator={false}
+        >
           {groups.map((group) => (
-            <View key={group.id} style={{ marginTop: space.unit * 4 }}>
+            <View key={group.id} style={{ marginTop: space.lg }}>
               <Text
                 accessibilityRole="header"
                 style={{
                   color: colors.ink,
-                  fontSize: typeScale.heading.fontSize,
-                  lineHeight: typeScale.heading.lineHeight,
+                  fontFamily: fonts.interBold,
+                  fontSize: 16,
+                  lineHeight: 22,
+                  fontWeight: '700',
+                  marginBottom: space.sm,
                 }}
               >
                 {group.id === unattachedGroupId
                   ? copy.notes.unattached
                   : group.title}
               </Text>
-              {group.items.map((item) => (
-                <View
-                  key={item.id}
-                  style={{
-                    paddingVertical: space.unit * 2,
-                    borderBottomWidth: 1,
-                    borderBottomColor: colors.line,
-                  }}
-                >
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={item.title}
+              <View style={{ gap: space.sm }}>
+                {group.items.map((item) => (
+                  <PressableCard
+                    key={item.id}
                     onPress={() => openNote(item.id)}
-                    style={{
-                      minHeight: space.target,
-                      justifyContent: 'center',
-                    }}
+                    accessibilityLabel={item.title}
+                    elevationLevel={1}
+                    contentStyle={{ padding: space.md }}
                   >
                     <Text
-                      numberOfLines={1}
+                      numberOfLines={2}
                       style={{
                         color: colors.ink,
-                        fontSize: typeScale.ui.fontSize,
-                        lineHeight: typeScale.ui.lineHeight,
+                        fontFamily: fonts.interMedium,
+                        fontSize: 15,
+                        lineHeight: 21,
+                        fontWeight: '500',
+                        marginBottom:
+                          item.sectionId && item.sectionNumber && item.instrumentId
+                            ? space.xs
+                            : 0,
                       }}
                     >
                       {item.title}
                     </Text>
-                  </Pressable>
-                  {item.sectionId && item.sectionNumber && item.instrumentId ? (
-                    <Pressable
-                      accessibilityRole="link"
-                      accessibilityLabel={`${copy.notes.sectionLink} ${item.sectionNumber}`}
-                      onPress={() => {
-                        const instrumentId = item.instrumentId;
-                        const sectionNumber = item.sectionNumber;
-                        if (!instrumentId || !sectionNumber) return;
-                        router.push(
-                          readerHref(instrumentId, sectionNumber) as Href,
-                        );
-                      }}
-                      style={{
-                        minHeight: space.target,
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Text
+                    {item.sectionId && item.sectionNumber && item.instrumentId ? (
+                      <Pressable
+                        accessibilityRole="link"
+                        accessibilityLabel={`${copy.notes.sectionLink} ${item.sectionNumber}`}
+                        onPress={() => {
+                          const instrumentId = item.instrumentId;
+                          const sectionNumber = item.sectionNumber;
+                          if (!instrumentId || !sectionNumber) return;
+                          router.push(
+                            readerHref(instrumentId, sectionNumber) as Href,
+                          );
+                        }}
                         style={{
-                          color: colors.primary,
-                          fontSize: typeScale.ui.fontSize,
-                          lineHeight: typeScale.ui.lineHeight,
-                          fontWeight: '600',
+                          marginTop: space.xs,
+                          alignSelf: 'flex-start',
                         }}
                       >
-                        {copy.notes.sectionLink} {item.sectionNumber}
-                      </Text>
-                    </Pressable>
-                  ) : null}
-                </View>
-              ))}
+                        <Text
+                          style={{
+                            color: colors.primary,
+                            fontFamily: fonts.interSemiBold,
+                            fontSize: 13,
+                            lineHeight: 18,
+                            fontWeight: '600',
+                          }}
+                        >
+                          {copy.notes.sectionLink} {item.sectionNumber} →
+                        </Text>
+                      </Pressable>
+                    ) : null}
+                  </PressableCard>
+                ))}
+              </View>
             </View>
           ))}
         </ScrollView>

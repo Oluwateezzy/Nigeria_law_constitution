@@ -4,9 +4,9 @@ import {
   shippingInstruments,
 } from '@nigeria-law/content';
 import { citationRemovedLimit } from '@nigeria-law/domain';
-import { router, type Href } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useAccount } from '@/account/AuthProvider';
 import { readSupabasePublicConfig } from '@/account/client';
 import { readOwnKey } from '@/ask/keys';
@@ -16,6 +16,7 @@ import { PlusPurchase } from '@/billing/PlusPurchase';
 import { CitationCard } from '@/components/CitationCard';
 import { DisclaimerLine } from '@/components/DisclaimerLine';
 import { DisclosurePanel } from '@/components/DisclosurePanel';
+import { SkeletonLoader } from '@/components/SkeletonLoader';
 import { copy } from '@/copy';
 import { usePreferences } from '@/persistence/PreferencesProvider';
 import { citationCardRoute, type CardSection } from '@/scenario/cards';
@@ -30,11 +31,12 @@ import {
 import { sendScenario } from '@/scenario/send';
 import { useSearch } from '@/search/SearchProvider';
 import { notifyNotesChanged } from '@/sync/bus';
-import { radius, space, type as typeScale } from '@/theme/tokens';
+import { fonts, radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 export function ScenarioScreen() {
-  const { colors } = useTheme();
+  const { colors, elevation } = useTheme();
+  const params = useLocalSearchParams<{ q?: string }>();
   const preferences = usePreferences();
   const account = useAccount();
   const { database } = useSearch();
@@ -62,8 +64,15 @@ export function ScenarioScreen() {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [ownKey, setOwnKey] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
+  const [ownKey, setOwnKey] = useState(false);
+
+  // Pre-fill query from Home hero card if passed
+  useEffect(() => {
+    if (params.q && typeof params.q === 'string' && params.q.trim().length > 0) {
+      setDraft(params.q);
+    }
+  }, [params.q]);
 
   useEffect(() => {
     const db = database();
@@ -244,6 +253,15 @@ export function ScenarioScreen() {
       {messages.map((message) => (
         <MessageView key={message.id} message={message} catalog={catalog} />
       ))}
+      {busy ? (
+        <View style={{ marginTop: space.md, gap: space.sm }}>
+          <SkeletonLoader height={24} width="60%" />
+          <SkeletonLoader height={16} width="95%" />
+          <SkeletonLoader height={16} width="85%" />
+          <SkeletonLoader height={16} width="90%" />
+          <SkeletonLoader height={72} width="100%" borderRadius={radius.md} />
+        </View>
+      ) : null}
       {status ? (
         <Text
           style={{
@@ -338,20 +356,29 @@ export function ScenarioScreen() {
             onPress={() => {
               void explain(draft);
             }}
-            style={{
-              minHeight: space.target,
-              justifyContent: 'center',
-              paddingVertical: space.unit,
-            }}
+            style={({ pressed }) => [
+              {
+                minHeight: space.target,
+                marginTop: space.sm,
+                borderRadius: radius.field,
+                backgroundColor: canExplain ? colors.primary : colors.line,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: space.sm,
+                opacity: pressed ? 0.9 : 1,
+              },
+              canExplain ? elevation[1] : null,
+            ]}
           >
             <Text
               style={{
-                color: canExplain ? colors.primary : colors.inkMuted,
-                fontWeight: canExplain ? '600' : '400',
-                flexShrink: 1,
+                color: canExplain ? '#FFFFFF' : colors.inkMuted,
+                fontFamily: fonts.interSemiBold,
+                fontSize: 15,
+                fontWeight: '600',
               }}
             >
-              {copy.scenario.explain}
+              {busy ? 'Consulting Law Index...' : copy.scenario.explain}
             </Text>
           </Pressable>
         </View>

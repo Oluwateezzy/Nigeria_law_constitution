@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import { space, type as typeScale } from '@/theme/tokens';
+import { fonts, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type SectionHeaderProps = {
@@ -15,9 +15,11 @@ export function SectionHeader({ path, number, heading }: SectionHeaderProps) {
       <Text
         style={{
           color: colors.inkMuted,
+          fontFamily: fonts.interMedium,
           fontSize: typeScale.ui.fontSize,
           lineHeight: typeScale.ui.lineHeight,
           textTransform: 'uppercase',
+          letterSpacing: 0.5,
         }}
       >
         {path}

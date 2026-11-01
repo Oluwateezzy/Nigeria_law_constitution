@@ -63,7 +63,7 @@ export default function RootLayout() {
 }
 
 function ThemedStack() {
-  const { scheme, colors } = useTheme();
+  const { scheme, colors, reduceMotion } = useTheme();
   const [isOnboardingChecked, setIsOnboardingChecked] = useState(false);
   const [completedOnboarding, setCompletedOnboarding] = useState(false);
 
@@ -100,6 +100,8 @@ function ThemedStack() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.bg },
+          animation: reduceMotion ? 'none' : 'slide_from_right',
+          animationDuration: reduceMotion ? 0 : 300,
         }}
       />
     </View>

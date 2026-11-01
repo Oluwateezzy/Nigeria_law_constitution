@@ -449,11 +449,7 @@ function SectionReader({
           </SafeAreaView>
           <View
             style={{
-              paddingBottom: Math.max(insets.bottom, space.unit * 2),
               paddingHorizontal: space.screen,
-              borderTopWidth: 1,
-              borderTopColor: colors.line,
-              backgroundColor: colors.bgRaised,
             }}
           >
             <ReaderBar
