@@ -6,9 +6,9 @@ const {
 const variant = readAppVariant(process.env.APP_VARIANT);
 
 const names = {
-  local: 'Nigeria Law Local',
-  preview: 'Nigeria Law Preview',
-  production: 'Nigeria Constitution and Law',
+  local: 'What Does The Law Say (Local)',
+  preview: 'What Does The Law Say (Preview)',
+  production: 'What Does The Law Say',
 };
 
 /** @param {{ config: import('expo/config').ExpoConfig }} context */
@@ -21,11 +21,11 @@ module.exports = ({ config }) => ({
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
-  backgroundColor: '#F6F3EC',
+  backgroundColor: '#FAFBFC',
   splash: {
     image: './assets/splash-icon.png',
     resizeMode: 'contain',
-    backgroundColor: '#F6F3EC',
+    backgroundColor: '#FAFBFC',
   },
   ios: {
     supportsTablet: true,
@@ -34,7 +34,7 @@ module.exports = ({ config }) => ({
   android: {
     package: bundleIdentifiers[variant],
     adaptiveIcon: {
-      backgroundColor: '#F6F3EC',
+      backgroundColor: '#006B3F',
       foregroundImage: './assets/android-icon-foreground.png',
       backgroundImage: './assets/android-icon-background.png',
       monochromeImage: './assets/android-icon-monochrome.png',

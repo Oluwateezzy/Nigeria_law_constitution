@@ -63,7 +63,7 @@ export default function AccountScreen() {
               }}
               style={{ minHeight: space.target, justifyContent: 'center' }}
             >
-              <Text style={{ color: colors.accent }}>{copy.account.apple}</Text>
+              <Text style={{ color: colors.primary }}>{copy.account.apple}</Text>
             </Pressable>
           ) : null}
           <Pressable
@@ -74,7 +74,7 @@ export default function AccountScreen() {
             }}
             style={{ minHeight: space.target, justifyContent: 'center' }}
           >
-            <Text style={{ color: colors.accent }}>{copy.account.google}</Text>
+            <Text style={{ color: colors.primary }}>{copy.account.google}</Text>
           </Pressable>
           <TextInput
             value={email}
@@ -106,7 +106,7 @@ export default function AccountScreen() {
             }}
             style={{ minHeight: space.target, justifyContent: 'center' }}
           >
-            <Text style={{ color: colors.accent }}>
+            <Text style={{ color: colors.primary }}>
               {copy.account.sendLink}
             </Text>
           </Pressable>

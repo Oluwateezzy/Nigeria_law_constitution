@@ -1,7 +1,8 @@
 import { Pressable, Text, TextInput, View, type TextInputInstance } from 'react-native';
 import type { RefObject } from 'react';
 import { copy } from '@/copy';
-import { radius, space, type as typeScale } from '@/theme/tokens';
+import { getGlassStyle } from '@/theme/glass';
+import { fonts, radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type SearchFieldProps = {
@@ -23,24 +24,39 @@ export function SearchField({
   autoFocus = false,
   inputRef,
 }: SearchFieldProps) {
-  const { colors } = useTheme();
+  const { scheme, colors } = useTheme();
+  const glassStyle = getGlassStyle(scheme, { border: true });
+
   return (
     <View
       accessibilityRole="search"
       onTouchStart={onFocus}
-      style={{
-        minHeight: space.target,
-        marginTop: space.unit * 4,
-        paddingHorizontal: space.unit * 4,
-        borderWidth: 1,
-        borderColor: colors.line,
-        borderRadius: radius.field,
-        backgroundColor: colors.bgRaised,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: space.unit * 2,
-      }}
+      style={[
+        glassStyle,
+        {
+          minHeight: 48,
+          marginTop: space.md,
+          paddingHorizontal: space.md,
+          borderRadius: radius.xl,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: space.sm,
+        },
+      ]}
     >
+      {/* Subtle Search Icon indicator */}
+      <Text
+        style={{
+          color: colors.inkMuted,
+          fontSize: 16,
+          lineHeight: 20,
+        }}
+        accessibilityElementsHidden={true}
+        importantForAccessibility="no"
+      >
+        🔍
+      </Text>
+
       <TextInput
         ref={inputRef}
         value={value}
@@ -58,8 +74,9 @@ export function SearchField({
           flex: 1,
           minHeight: space.target,
           color: colors.ink,
-          fontSize: typeScale.ui.fontSize,
-          lineHeight: typeScale.ui.lineHeight,
+          fontFamily: fonts.inter,
+          fontSize: typeScale.body.fontSize,
+          lineHeight: typeScale.body.lineHeight,
         }}
       />
       {value.length > 0 ? (
@@ -67,13 +84,20 @@ export function SearchField({
           accessibilityRole="button"
           accessibilityLabel={copy.search.clear}
           onPress={onClear}
-          style={{ minHeight: space.target, justifyContent: 'center' }}
+          style={({ pressed }) => ({
+            minHeight: space.target,
+            justifyContent: 'center',
+            paddingHorizontal: space.xs,
+            opacity: pressed ? 0.7 : 1,
+          })}
         >
           <Text
             style={{
-              color: colors.accent,
-              fontSize: typeScale.ui.fontSize,
-              lineHeight: typeScale.ui.lineHeight,
+              color: colors.primary,
+              fontFamily: fonts.interMedium,
+              fontSize: typeScale.caption.fontSize,
+              lineHeight: typeScale.caption.lineHeight,
+              fontWeight: '600',
             }}
           >
             {copy.search.clear}

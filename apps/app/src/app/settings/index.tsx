@@ -73,7 +73,7 @@ export default function SettingsScreen() {
               >
                 <Text
                   style={{
-                    color: selected ? colors.accent : colors.ink,
+                    color: selected ? colors.primary : colors.ink,
                     fontSize: typeScale.ui.fontSize,
                     lineHeight: typeScale.ui.lineHeight,
                   }}
@@ -94,7 +94,7 @@ export default function SettingsScreen() {
         >
           <Text
             style={{
-              color: colors.accent,
+              color: colors.primary,
               fontSize: typeScale.ui.fontSize,
               lineHeight: typeScale.ui.lineHeight,
             }}
@@ -121,7 +121,7 @@ export default function SettingsScreen() {
               }}
               style={{ minHeight: space.target, justifyContent: 'center' }}
             >
-              <Text style={{ color: colors.accent }}>
+              <Text style={{ color: colors.primary }}>
                 {copy.account.upload}
               </Text>
             </Pressable>
@@ -151,7 +151,7 @@ export default function SettingsScreen() {
         >
           <Text
             style={{
-              color: colors.accent,
+              color: colors.primary,
               fontSize: typeScale.ui.fontSize,
               lineHeight: typeScale.ui.lineHeight,
             }}
@@ -171,7 +171,7 @@ export default function SettingsScreen() {
         >
           <Text
             style={{
-              color: colors.accent,
+              color: colors.primary,
               fontSize: typeScale.ui.fontSize,
               lineHeight: typeScale.ui.lineHeight,
             }}
@@ -220,7 +220,7 @@ export default function SettingsScreen() {
           onPress={() => router.push('/settings/privacy')}
           style={{ minHeight: space.target, justifyContent: 'center' }}
         >
-          <Text style={{ color: colors.accent }}>{copy.settings.privacy}</Text>
+          <Text style={{ color: colors.primary }}>{copy.settings.privacy}</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -228,7 +228,7 @@ export default function SettingsScreen() {
           onPress={() => router.push('/settings/terms')}
           style={{ minHeight: space.target, justifyContent: 'center' }}
         >
-          <Text style={{ color: colors.accent }}>{copy.settings.terms}</Text>
+          <Text style={{ color: colors.primary }}>{copy.settings.terms}</Text>
         </Pressable>
         <Pressable
           accessibilityRole="link"
@@ -238,7 +238,7 @@ export default function SettingsScreen() {
           }}
           style={{ minHeight: space.target, justifyContent: 'center' }}
         >
-          <Text style={{ color: colors.accent }}>
+          <Text style={{ color: colors.primary }}>
             {`${copy.settings.support} ${copy.settings.supportEmail}`}
           </Text>
         </Pressable>

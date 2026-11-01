@@ -10,7 +10,10 @@ type ScreenProps = {
   edges?: Edges;
 };
 
-export function Screen({ children, edges = ['top'] }: ScreenProps) {
+export function Screen({
+  children,
+  edges = ['top', 'bottom'],
+}: ScreenProps) {
   const { colors } = useTheme();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }} edges={edges}>
@@ -21,7 +24,7 @@ export function Screen({ children, edges = ['top'] }: ScreenProps) {
           maxWidth: columnMaxWidth(typeScale.provision.fontSize),
           alignSelf: 'center',
           paddingHorizontal: space.screen,
-          paddingBottom: space.unit * 4,
+          paddingBottom: space.md,
         }}
       >
         {children}

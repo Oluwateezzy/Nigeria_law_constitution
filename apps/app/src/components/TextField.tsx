@@ -1,5 +1,6 @@
-import { Text, TextInput, View } from 'react-native';
-import { radius, space, type as typeScale } from '@/theme/tokens';
+import { useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { fonts, radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type TextFieldProps = {
@@ -20,37 +21,49 @@ export function TextField({
   error,
 }: TextFieldProps) {
   const { colors } = useTheme();
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
-    <View>
+    <View style={styles.container}>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         onSubmitEditing={onSubmit}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
         placeholderTextColor={colors.inkMuted}
         accessibilityLabel={accessibilityLabel}
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="go"
-        style={{
-          minHeight: space.target,
-          borderWidth: 1,
-          borderColor: error ? colors.danger : colors.line,
-          borderRadius: radius.field,
-          paddingHorizontal: space.unit * 3,
-          color: colors.ink,
-          backgroundColor: colors.bgRaised,
-          fontSize: typeScale.ui.fontSize,
-        }}
+        style={[
+          styles.input,
+          {
+            borderColor: error
+              ? colors.danger
+              : isFocused
+                ? colors.primary
+                : colors.line,
+            borderWidth: isFocused ? 2 : 1,
+            borderRadius: radius.md,
+            paddingHorizontal: space.md,
+            color: colors.ink,
+            backgroundColor: colors.bgRaised,
+            fontFamily: fonts.inter,
+            fontSize: typeScale.body.fontSize,
+          },
+        ]}
       />
       {error ? (
         <Text
           accessibilityRole="alert"
           style={{
-            marginTop: space.unit,
+            marginTop: space.xs,
             color: colors.danger,
-            fontSize: typeScale.disclaimer.fontSize,
-            lineHeight: typeScale.disclaimer.lineHeight,
+            fontFamily: fonts.inter,
+            fontSize: typeScale.caption.fontSize,
+            lineHeight: typeScale.caption.lineHeight,
           }}
         >
           {error}
@@ -59,3 +72,12 @@ export function TextField({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+  },
+  input: {
+    minHeight: space.target,
+  },
+});

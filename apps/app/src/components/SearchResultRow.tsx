@@ -38,7 +38,7 @@ export function SearchResultRow({
         borderBottomWidth: 1,
         borderBottomColor: colors.line,
         borderLeftWidth: selected ? 3 : 0,
-        borderLeftColor: colors.accent,
+        borderLeftColor: colors.primary,
         gap: space.unit,
       }}
     >

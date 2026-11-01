@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import { copy } from '@/copy';
-import { space, type as typeScale } from '@/theme/tokens';
+import { fonts, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 const lines = [
@@ -31,9 +31,11 @@ export function DisclosurePanel({ onContinue }: { onContinue: () => void }) {
         accessibilityRole="button"
         accessibilityLabel={copy.disclosure.continue}
         onPress={onContinue}
-        style={{ minHeight: space.target, justifyContent: 'center' }}
+        style={{ minHeight: space.target, justifyContent: 'center', marginTop: space.sm }}
       >
-        <Text style={{ color: colors.accent }}>{copy.disclosure.continue}</Text>
+        <Text style={{ color: colors.primary, fontFamily: fonts.interSemi, fontWeight: '600' }}>
+          {copy.disclosure.continue} →
+        </Text>
       </Pressable>
     </View>
   );

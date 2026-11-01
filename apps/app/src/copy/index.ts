@@ -5,7 +5,7 @@ import {
 } from '@nigeria-law/domain';
 
 export const copy = {
-  productName: 'Nigeria Constitution and Law',
+  productName: 'What Does The Law Say',
   searchPlaceholder: 'Search the Constitution and laws',
   askPlaceholder: 'Ask about this section',
   scenarioPlaceholder: 'Describe what happened, in your own words',

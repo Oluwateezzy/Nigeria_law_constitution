@@ -80,7 +80,7 @@ export function NoteSheet({
         void close();
       }}
     >
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }} edges={['top', 'bottom']}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={{ flex: 1, paddingHorizontal: space.screen }}
@@ -93,61 +93,80 @@ export function NoteSheet({
             }}
           />
           {confirming && savedId ? (
-            <View style={{ marginTop: space.unit * 4 }}>
+            <View style={{ marginTop: space.lg, padding: space.md, backgroundColor: colors.bgRaised, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line }}>
               <Text
                 accessibilityRole="header"
                 style={{
                   color: colors.ink,
-                  fontSize: typeScale.heading.fontSize,
-                  lineHeight: typeScale.heading.lineHeight,
+                  fontFamily: fonts.interSemi,
+                  fontSize: typeScale.h2.fontSize,
+                  lineHeight: typeScale.h2.lineHeight,
+                  fontWeight: '600',
                 }}
               >
                 {copy.notes.deleteTitle}
               </Text>
               <Text
                 style={{
-                  marginTop: space.unit * 2,
-                  color: colors.ink,
-                  fontSize: typeScale.ui.fontSize,
-                  lineHeight: typeScale.ui.lineHeight,
+                  marginTop: space.sm,
+                  color: colors.inkMuted,
+                  fontFamily: fonts.inter,
+                  fontSize: typeScale.body.fontSize,
+                  lineHeight: typeScale.body.lineHeight,
                 }}
               >
                 {copy.notes.deleteBody}
               </Text>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={copy.notes.keep}
-                onPress={() => setConfirming(false)}
-                style={{ minHeight: space.target, justifyContent: 'center' }}
-              >
-                <Text
+              <View style={{ flexDirection: 'row', gap: space.md, marginTop: space.md }}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={copy.notes.keep}
+                  onPress={() => setConfirming(false)}
                   style={{
-                    color: colors.accent,
-                    fontSize: typeScale.ui.fontSize,
-                    lineHeight: typeScale.ui.lineHeight,
+                    minHeight: space.target,
+                    justifyContent: 'center',
+                    paddingHorizontal: space.md,
+                    borderRadius: radius.md,
+                    backgroundColor: colors.primarySoft,
                   }}
                 >
-                  {copy.notes.keep}
-                </Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={copy.notes.delete}
-                onPress={() => {
-                  if (savedId) void onDelete(savedId);
-                }}
-                style={{ minHeight: space.target, justifyContent: 'center' }}
-              >
-                <Text
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontFamily: fonts.interSemi,
+                      fontSize: typeScale.body.fontSize,
+                      lineHeight: typeScale.body.lineHeight,
+                    }}
+                  >
+                    {copy.notes.keep}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={copy.notes.delete}
+                  onPress={() => {
+                    if (savedId) void onDelete(savedId);
+                  }}
                   style={{
-                    color: colors.danger,
-                    fontSize: typeScale.ui.fontSize,
-                    lineHeight: typeScale.ui.lineHeight,
+                    minHeight: space.target,
+                    justifyContent: 'center',
+                    paddingHorizontal: space.md,
+                    borderRadius: radius.md,
+                    backgroundColor: colors.dangerSoft,
                   }}
                 >
-                  {copy.notes.delete}
-                </Text>
-              </Pressable>
+                  <Text
+                    style={{
+                      color: colors.danger,
+                      fontFamily: fonts.interSemi,
+                      fontSize: typeScale.body.fontSize,
+                      lineHeight: typeScale.body.lineHeight,
+                    }}
+                  >
+                    {copy.notes.delete}
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           ) : (
             <>
@@ -160,13 +179,15 @@ export function NoteSheet({
                     minHeight: space.target,
                     justifyContent: 'center',
                     alignSelf: 'flex-start',
+                    marginTop: space.xs,
                   }}
                 >
                   <Text
                     style={{
                       color: colors.danger,
-                      fontSize: typeScale.ui.fontSize,
-                      lineHeight: typeScale.ui.lineHeight,
+                      fontFamily: fonts.interMedium,
+                      fontSize: typeScale.caption.fontSize,
+                      lineHeight: typeScale.caption.lineHeight,
                     }}
                   >
                     {copy.notes.delete}
@@ -186,11 +207,14 @@ export function NoteSheet({
                 textAlignVertical="top"
                 style={{
                   flex: 1,
-                  marginTop: space.unit * 2,
+                  marginTop: space.sm,
+                  marginBottom: space.md,
                   color: colors.ink,
                   backgroundColor: colors.bgRaised,
-                  borderRadius: radius.field,
-                  padding: space.unit * 3,
+                  borderRadius: radius.lg,
+                  borderWidth: 1,
+                  borderColor: colors.line,
+                  padding: space.md,
                   fontFamily: fonts.newsreader,
                   fontSize: typeScale.provision.fontSize,
                   lineHeight: typeScale.provision.lineHeight,

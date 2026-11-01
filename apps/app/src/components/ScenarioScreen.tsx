@@ -265,7 +265,7 @@ export function ScenarioScreen() {
           }}
           style={{ minHeight: space.target, justifyContent: 'center' }}
         >
-          <Text style={{ color: colors.accent }}>{copy.scenario.search}</Text>
+          <Text style={{ color: colors.primary }}>{copy.scenario.search}</Text>
         </Pressable>
       ) : null}
       {status === copy.ask.providerError && pending ? (
@@ -277,7 +277,7 @@ export function ScenarioScreen() {
           }}
           style={{ minHeight: space.target, justifyContent: 'center' }}
         >
-          <Text style={{ color: colors.accent }}>{copy.ask.retry}</Text>
+          <Text style={{ color: colors.primary }}>{copy.ask.retry}</Text>
         </Pressable>
       ) : null}
       <View style={{ marginTop: space.unit * 4 }}>
@@ -302,7 +302,7 @@ export function ScenarioScreen() {
             onPress={() => router.push('/settings/ai')}
             style={{ minHeight: space.target, justifyContent: 'center' }}
           >
-            <Text style={{ color: colors.accent }}>{copy.ask.ownKey}</Text>
+            <Text style={{ color: colors.primary }}>{copy.ask.ownKey}</Text>
           </Pressable>
         </View>
       ) : (
@@ -346,7 +346,8 @@ export function ScenarioScreen() {
           >
             <Text
               style={{
-                color: canExplain ? colors.accent : colors.inkMuted,
+                color: canExplain ? colors.primary : colors.inkMuted,
+                fontWeight: canExplain ? '600' : '400',
                 flexShrink: 1,
               }}
             >
@@ -362,7 +363,7 @@ export function ScenarioScreen() {
           onPress={startNew}
           style={{ minHeight: space.target, justifyContent: 'center' }}
         >
-          <Text style={{ color: colors.accent }}>
+          <Text style={{ color: colors.primary }}>
             {copy.scenario.newScenario}
           </Text>
         </Pressable>

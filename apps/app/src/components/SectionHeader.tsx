@@ -25,7 +25,7 @@ export function SectionHeader({ path, number, heading }: SectionHeaderProps) {
       <Text
         style={{
           marginTop: space.unit * 3,
-          color: colors.accent,
+          color: colors.primary,
           fontFamily: typeScale.sectionNumber.fontFamily,
           fontSize: typeScale.sectionNumber.fontSize,
           lineHeight: typeScale.sectionNumber.lineHeight,

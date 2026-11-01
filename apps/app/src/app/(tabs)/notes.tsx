@@ -61,7 +61,7 @@ export default function NotesScreen() {
             onPress={dismissAccountLine}
             style={{ minHeight: space.target, justifyContent: 'center' }}
           >
-            <Text style={{ color: colors.accent }}>
+            <Text style={{ color: colors.primary }}>
               {copy.account.hideLine}
             </Text>
           </Pressable>
@@ -133,9 +133,10 @@ export default function NotesScreen() {
                     >
                       <Text
                         style={{
-                          color: colors.accent,
+                          color: colors.primary,
                           fontSize: typeScale.ui.fontSize,
                           lineHeight: typeScale.ui.lineHeight,
+                          fontWeight: '600',
                         }}
                       >
                         {copy.notes.sectionLink} {item.sectionNumber}

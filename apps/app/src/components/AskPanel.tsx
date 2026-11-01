@@ -243,7 +243,7 @@ function AskBody({
         onPress={onClose}
         style={{ minHeight: space.target, justifyContent: 'center' }}
       >
-        <Text style={{ color: colors.accent }}>{copy.settings.close}</Text>
+        <Text style={{ color: colors.primary }}>{copy.settings.close}</Text>
       </Pressable>
       <Text
         accessibilityRole="header"
@@ -273,7 +273,7 @@ function AskBody({
                 }}
                 style={{ minHeight: space.target, justifyContent: 'center' }}
               >
-                <Text style={{ color: colors.accent }}>{starter}</Text>
+                <Text style={{ color: colors.primary }}>{starter}</Text>
               </Pressable>
             ))
           : null}
@@ -301,7 +301,7 @@ function AskBody({
             }}
             style={{ minHeight: space.target, justifyContent: 'center' }}
           >
-            <Text style={{ color: colors.accent }}>{copy.ask.retry}</Text>
+            <Text style={{ color: colors.primary }}>{copy.ask.retry}</Text>
           </Pressable>
         ) : null}
         {serverVersion ? (
@@ -323,7 +323,7 @@ function AskBody({
             onPress={() => router.push('/settings/ai')}
             style={{ minHeight: space.target, justifyContent: 'center' }}
           >
-            <Text style={{ color: colors.accent }}>
+            <Text style={{ color: colors.primary }}>
               {copy.ask.openSettings}
             </Text>
           </Pressable>
@@ -348,7 +348,7 @@ function AskBody({
             onPress={() => router.push('/settings/ai')}
             style={{ minHeight: space.target, justifyContent: 'center' }}
           >
-            <Text style={{ color: colors.accent }}>{copy.ask.ownKey}</Text>
+            <Text style={{ color: colors.primary }}>{copy.ask.ownKey}</Text>
           </Pressable>
         </View>
       ) : (
@@ -391,7 +391,7 @@ function AskBody({
               flexShrink: 1,
             }}
           >
-            <Text style={{ color: colors.accent, flexShrink: 1 }}>
+            <Text style={{ color: colors.primary, flexShrink: 1, fontWeight: '600' }}>
               {copy.ask.send}
             </Text>
           </Pressable>

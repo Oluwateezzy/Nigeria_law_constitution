@@ -1,8 +1,17 @@
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { copy } from '@/copy';
 import { readerBarActions } from '@/reader/bar';
-import { space, type as typeScale } from '@/theme/tokens';
+import { getGlassStyle } from '@/theme/glass';
+import { fonts, radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
+
+const icons = {
+  previous: '←',
+  ask: '✨',
+  note: '📝',
+  next: '→',
+} as const;
 
 const labels = {
   previous: {
@@ -52,36 +61,51 @@ export function ReaderBar({
   onAsk,
   onNote,
 }: ReaderBarProps) {
+  const insets = useSafeAreaInsets();
+  const { scheme, colors } = useTheme();
+  const glass = getGlassStyle(scheme, { border: true });
   const actions = readerBarActions({ atStart, atEnd });
+
   return (
-    <View style={{ flexDirection: 'row' }}>
-      {actions.map((action) => {
-        const text = labels[action.id];
-        const onPress =
-          action.id === 'previous'
-            ? onPrevious
-            : action.id === 'next'
-              ? onNext
-              : action.id === 'note'
-                ? onNote
-                : action.id === 'ask'
-                  ? onAsk
-                  : undefined;
-        const label =
-          action.id === 'note' && noteFilled
-            ? copy.reader.noteSavedLabel
-            : text.label;
-        return (
-          <MoveControl
-            key={action.id}
-            id={action.id}
-            label={label}
-            disabled={action.disabled}
-            noteFilled={action.id === 'note' && noteFilled}
-            onPress={onPress}
-          />
-        );
-      })}
+    <View
+      style={[
+        glass,
+        styles.bar,
+        {
+          paddingBottom: insets.bottom > 0 ? insets.bottom : space.sm,
+          borderTopColor: colors.line,
+        },
+      ]}
+    >
+      <View style={styles.actionRow}>
+        {actions.map((action) => {
+          const text = labels[action.id];
+          const onPress =
+            action.id === 'previous'
+              ? onPrevious
+              : action.id === 'next'
+                ? onNext
+                : action.id === 'note'
+                  ? onNote
+                  : action.id === 'ask'
+                    ? onAsk
+                    : undefined;
+          const label =
+            action.id === 'note' && noteFilled
+              ? copy.reader.noteSavedLabel
+              : text.label;
+          return (
+            <MoveControl
+              key={action.id}
+              id={action.id}
+              label={label}
+              disabled={action.disabled}
+              noteFilled={action.id === 'note' && noteFilled}
+              onPress={onPress}
+            />
+          );
+        })}
+      </View>
     </View>
   );
 }
@@ -101,6 +125,8 @@ function MoveControl({
 }) {
   const { colors } = useTheme();
   const text = labels[id];
+  const icon = icons[id];
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -108,28 +134,26 @@ function MoveControl({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={{
-        flex: 1,
-        minHeight: space.target,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: space.unit,
-        opacity: disabled ? 0.35 : 1,
-      }}
+      style={({ pressed }) => [
+        styles.button,
+        {
+          opacity: disabled ? 0.35 : 1,
+          backgroundColor: pressed ? colors.primarySoft : 'transparent',
+        },
+      ]}
     >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: space.unit,
-        }}
-      >
+      <View style={styles.buttonContent}>
+        <Text style={{ fontSize: 14, color: colors.primary }}>
+          {icon}
+        </Text>
         <Text
           numberOfLines={1}
           style={{
             color: colors.ink,
-            fontSize: typeScale.ui.fontSize,
-            lineHeight: typeScale.ui.lineHeight,
+            fontFamily: fonts.interMedium,
+            fontSize: typeScale.body.fontSize - 1, // 14px
+            lineHeight: 18,
+            fontWeight: '500',
           }}
         >
           {text.title}
@@ -139,10 +163,10 @@ function MoveControl({
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
             style={{
-              width: 8,
-              height: 8,
-              borderRadius: 4,
-              backgroundColor: colors.accent,
+              width: 7,
+              height: 7,
+              borderRadius: radius.full,
+              backgroundColor: colors.primary,
             }}
           />
         ) : null}
@@ -150,3 +174,29 @@ function MoveControl({
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  bar: {
+    borderTopWidth: 1,
+    paddingTop: space.xs,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  button: {
+    flex: 1,
+    minHeight: space.target,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: space.xs,
+    paddingVertical: space.xs,
+    borderRadius: radius.md,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+});

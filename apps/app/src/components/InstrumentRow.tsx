@@ -1,5 +1,6 @@
-import { Pressable, Text } from 'react-native';
-import { space, type as typeScale } from '@/theme/tokens';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { getElevation } from '@/theme/elevation';
+import { fonts, radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type InstrumentRowProps = {
@@ -9,41 +10,82 @@ type InstrumentRowProps = {
 };
 
 export function InstrumentRow({ title, detail, onPress }: InstrumentRowProps) {
-  const { colors } = useTheme();
+  const { scheme, colors } = useTheme();
+  const elevationStyle = getElevation(1, scheme);
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={detail ? `${title}. ${detail}` : title}
       onPress={onPress}
-      style={{
-        minHeight: space.target,
-        justifyContent: 'center',
-        paddingVertical: space.unit * 3,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.line,
-      }}
+      style={({ pressed }) => [
+        elevationStyle,
+        styles.card,
+        {
+          backgroundColor: pressed ? colors.primarySoft : colors.bgRaised,
+          borderColor: colors.line,
+        },
+      ]}
     >
-      <Text
-        style={{
-          color: colors.ink,
-          fontSize: typeScale.heading.fontSize,
-          lineHeight: typeScale.heading.lineHeight,
-        }}
-      >
-        {title}
-      </Text>
-      {detail ? (
+      <View style={styles.content}>
+        <View style={styles.textContainer}>
+          <Text
+            style={{
+              color: colors.ink,
+              fontFamily: fonts.interSemi,
+              fontSize: typeScale.h2.fontSize - 2, // 18px
+              lineHeight: typeScale.h2.lineHeight - 2,
+              fontWeight: '600',
+            }}
+          >
+            {title}
+          </Text>
+          {detail ? (
+            <Text
+              style={{
+                marginTop: space.xs,
+                color: colors.inkMuted,
+                fontFamily: fonts.inter,
+                fontSize: typeScale.caption.fontSize,
+                lineHeight: typeScale.caption.lineHeight,
+              }}
+            >
+              {detail}
+            </Text>
+          ) : null}
+        </View>
+
         <Text
           style={{
-            marginTop: space.unit,
-            color: colors.inkMuted,
-            fontSize: typeScale.ui.fontSize,
-            lineHeight: typeScale.ui.lineHeight,
+            color: colors.primary,
+            fontFamily: fonts.interMedium,
+            fontSize: 18,
+            fontWeight: '600',
+            marginLeft: space.sm,
           }}
         >
-          {detail}
+          →
         </Text>
-      ) : null}
+      </View>
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    minHeight: space.target,
+    marginTop: space.sm,
+    paddingHorizontal: space.md,
+    paddingVertical: space.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  textContainer: {
+    flex: 1,
+  },
+});

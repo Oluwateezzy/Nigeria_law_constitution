@@ -183,6 +183,7 @@ export default function LibraryScreen() {
     <Screen>
       <TopBar
         title={copy.productName}
+        showBrandMark={true}
         actionLabel="Settings"
         onAction={() => router.push('/settings')}
       />
@@ -219,23 +220,24 @@ export default function LibraryScreen() {
           }}
           style={{
             alignSelf: 'flex-start',
-            marginTop: space.unit * 3,
+            marginTop: space.sm,
             minHeight: space.target,
             justifyContent: 'center',
-            paddingHorizontal: space.unit * 3,
-            borderRadius: radius.field,
+            paddingHorizontal: space.md,
+            borderRadius: radius.full,
             borderWidth: 1,
-            borderColor: limitToInstrument ? colors.accent : colors.line,
+            borderColor: limitToInstrument ? colors.primary : colors.line,
             backgroundColor: limitToInstrument
-              ? colors.accent
+              ? colors.primary
               : colors.bgRaised,
           }}
         >
           <Text
             style={{
-              color: limitToInstrument ? colors.bg : colors.ink,
-              fontSize: typeScale.ui.fontSize,
-              lineHeight: typeScale.ui.lineHeight,
+              color: limitToInstrument ? '#FFFFFF' : colors.ink,
+              fontFamily: fonts.interMedium,
+              fontSize: typeScale.caption.fontSize,
+              lineHeight: typeScale.caption.lineHeight,
             }}
           >
             {copy.search.inThisInstrument}

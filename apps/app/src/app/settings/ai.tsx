@@ -88,7 +88,7 @@ export default function AiSettingsScreen() {
             }}
           >
             <Text
-              style={{ color: provider === item ? colors.accent : colors.ink }}
+              style={{ color: provider === item ? colors.primary : colors.ink, fontWeight: provider === item ? '600' : '400' }}
             >
               {item === 'openai' ? copy.ai.openai : copy.ai.anthropic}
             </Text>
@@ -145,7 +145,7 @@ export default function AiSettingsScreen() {
           }}
           style={{ minHeight: space.target, justifyContent: 'center' }}
         >
-          <Text style={{ color: colors.accent }}>{copy.ai.remove}</Text>
+          <Text style={{ color: colors.danger }}>{copy.ai.remove}</Text>
         </Pressable>
       ) : (
         <Pressable
@@ -170,7 +170,7 @@ export default function AiSettingsScreen() {
           }}
           style={{ minHeight: space.target, justifyContent: 'center' }}
         >
-          <Text style={{ color: colors.accent }}>{copy.ai.save}</Text>
+          <Text style={{ color: colors.primary, fontWeight: '600' }}>{copy.ai.save}</Text>
         </Pressable>
       )}
     </Screen>
