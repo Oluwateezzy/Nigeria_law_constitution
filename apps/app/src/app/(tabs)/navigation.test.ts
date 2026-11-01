@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { ONBOARDING_SLIDES } from '@/onboarding';
+
+if (typeof require !== 'undefined' && require.extensions) {
+  require.extensions['.png'] = () => 'mock-png-asset';
+  require.extensions['.ttf'] = () => 'mock-font-asset';
+}
 
 describe('V2 Navigation and Onboarding', () => {
-  it('defines 5 onboarding slides with required metadata', () => {
+  it('defines 5 onboarding slides with required metadata', async () => {
+    const { ONBOARDING_SLIDES } = await import('@/onboarding/types');
     expect(ONBOARDING_SLIDES).toHaveLength(5);
     const titles = ONBOARDING_SLIDES.map((s) => s.title);
     expect(titles).toEqual([
@@ -14,7 +19,8 @@ describe('V2 Navigation and Onboarding', () => {
     ]);
   });
 
-  it('each onboarding slide has badge, subtitle, and gradient', () => {
+  it('each onboarding slide has badge, subtitle, and gradient', async () => {
+    const { ONBOARDING_SLIDES } = await import('@/onboarding/types');
     for (const slide of ONBOARDING_SLIDES) {
       expect(slide.id).toBeGreaterThan(0);
       expect(slide.badge.length).toBeGreaterThan(0);
