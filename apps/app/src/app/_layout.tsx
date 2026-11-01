@@ -1,4 +1,10 @@
 import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
+import {
   Newsreader_400Regular,
   Newsreader_600SemiBold,
 } from '@expo-google-fonts/newsreader';
@@ -20,6 +26,10 @@ import { palette } from '@/theme/tokens';
 export default function RootLayout() {
   const systemScheme = useColorScheme();
   const [loaded, error] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
     Newsreader_400Regular,
     Newsreader_600SemiBold,
   });

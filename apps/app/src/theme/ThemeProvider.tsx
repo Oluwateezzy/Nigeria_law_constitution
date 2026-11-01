@@ -8,21 +8,31 @@ import {
 } from 'react';
 import { AccessibilityInfo, Platform, useColorScheme } from 'react-native';
 import { installWebFocus } from './focus';
-import { motionDuration } from './motion';
+import { motionDuration, type MotionKind } from './motion';
 import {
   readThemePreference,
   resolveColorScheme,
   type ThemePreference,
 } from './preference';
 import { themePreferenceStore } from './storage';
-import { palette, type Palette } from './tokens';
+import {
+  elevationTokens,
+  gradient,
+  palette,
+  type Palette,
+} from './tokens';
 
-type ThemeValue = {
+export type ThemeValue = {
   scheme: 'light' | 'dark';
   colors: Palette;
   preference: ThemePreference;
   reduceMotion: boolean;
-  motionDuration: (kind: 'section' | 'sheet') => number;
+  motionDuration: (kind: MotionKind) => number;
+  gradient: {
+    hero: readonly [string, string];
+    trivia: readonly [string, string];
+  };
+  elevation: (typeof elevationTokens)['light'];
 };
 
 const ThemeContext = createContext<ThemeValue | null>(null);
@@ -73,13 +83,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       preference,
       reduceMotion,
       motionDuration: (kind) => motionDuration(kind, reduceMotion),
+      gradient: {
+        hero: gradient.hero[scheme],
+        trivia: gradient.trivia[scheme],
+      },
+      elevation: elevationTokens[scheme],
     };
   }, [preference, reduceMotion, systemScheme]);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    installWebFocus(value.colors.accent);
-  }, [value.colors.accent]);
+    installWebFocus(value.colors.primary);
+  }, [value.colors.primary]);
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
