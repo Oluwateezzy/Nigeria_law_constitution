@@ -1,183 +1,71 @@
-import {
-  findSection,
-  registryEntries,
-  shippingInstruments,
-} from '@nigeria-law/content';
-import {
-  router,
-  useFocusEffect,
-  useLocalSearchParams,
-  type Href,
-} from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { findSection, shippingInstruments } from '@nigeria-law/content';
+import { router, useFocusEffect, type Href } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
   Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   View,
-  type TextInputInstance,
 } from 'react-native';
 import { ContinueCard } from '@/components/ContinueCard';
-import { InstrumentRow } from '@/components/InstrumentRow';
 import { Screen } from '@/components/Screen';
-import { SearchField } from '@/components/SearchField';
-import { SearchResultRow } from '@/components/SearchResultRow';
 import { TopBar } from '@/components/TopBar';
 import { copy } from '@/copy';
 import { usePreferences } from '@/persistence/PreferencesProvider';
-import {
-  actRowDetail,
-  catalogueRows,
-  continueSectionLabel,
-} from '@/reader/library';
+import { continueSectionLabel } from '@/reader/library';
 import { readerHref } from '@/reader/linking';
-import { activeResultIndex, searchCursor } from '@/search/keyboard';
-import { useSearch } from '@/search/SearchProvider';
-import type { SearchResult } from '@/search/repository';
-import { fonts, radius, space, type as typeScale } from '@/theme/tokens';
+import { fonts, radius, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
-function firstParam(value: string | string[] | undefined): string {
-  if (Array.isArray(value)) return value[0] ?? '';
-  return value ?? '';
-}
-
-export default function LibraryScreen() {
-  const { colors } = useTheme();
+export default function HomeScreen() {
+  const { colors, scheme, elevation } = useTheme();
+  const { ready, position, refreshPosition } = usePreferences();
   const instruments = shippingInstruments();
-  const catalogue = catalogueRows({
-    instruments: instruments.map((item) => ({
-      id: item.id,
-      kind: item.kind,
-      shortTitle: item.shortTitle,
-      versionLabel: item.versionLabel,
-      year: item.year,
-      extent: item.extent,
-      reviewStatus: item.review.status,
-    })),
-    registry: registryEntries(),
-  });
-  const { ready, position, refreshPosition, recentQueries, rememberSearch } =
-    usePreferences();
-  const searchIndex = useSearch();
-  const params = useLocalSearchParams<{
-    fromInstrument?: string | string[];
-    q?: string | string[];
-  }>();
-  const fromInstrument = firstParam(params.fromInstrument);
-  const presetQuery = firstParam(params.q);
-  const [query, setQuery] = useState(presetQuery);
-  const [focused, setFocused] = useState(presetQuery.length > 0);
-  const [appliedPreset, setAppliedPreset] = useState(presetQuery);
-  if (presetQuery !== appliedPreset) {
-    setAppliedPreset(presetQuery);
-    if (presetQuery) {
-      setQuery(presetQuery);
-      setFocused(true);
-    }
-  }
-  const [limitedInstrument, setLimitedInstrument] = useState<string | null>(
-    null,
-  );
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [cursor, setCursor] = useState({ query: presetQuery, index: 0 });
-  const inputRef = useRef<TextInputInstance>(null);
-  const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const limitToInstrument =
-    fromInstrument.length > 0 && limitedInstrument === fromInstrument;
-  const requestId = useRef(0);
-  const runSearch = useCallback(
-    (value: string, limited: boolean) => {
-      const id = requestId.current + 1;
-      requestId.current = id;
-      const trimmed = value.trim();
-      if (!searchIndex.ready || trimmed.length === 0) {
-        setResults([]);
-        return;
-      }
-      void searchIndex
-        .search(value, limited ? fromInstrument : null)
-        .then((next) => {
-          if (requestId.current === id) setResults(next);
-        });
-    },
-    [fromInstrument, searchIndex],
-  );
+
   useFocusEffect(
     useCallback(() => {
       refreshPosition();
     }, [refreshPosition]),
   );
-  useEffect(() => {
-    return () => {
-      if (blurTimer.current) clearTimeout(blurTimer.current);
-    };
-  }, []);
-  useEffect(() => {
-    if (!fromInstrument) return;
-    inputRef.current?.focus();
-  }, [fromInstrument]);
-  useEffect(() => {
-    if (!searchIndex.ready) return;
-    const pending = Promise.resolve().then(() => {
-      runSearch(query, limitToInstrument);
-    });
-    return () => {
-      void pending;
-    };
-  }, [limitToInstrument, query, runSearch, searchIndex.ready]);
+
   const reading = position
     ? instruments.find((item) => findSection(item, position.sectionId))
     : undefined;
   const located =
     reading && position ? findSection(reading, position.sectionId) : null;
-  const searching = query.trim().length > 0;
-  const showRecent = focused && !searching && recentQueries.length > 0;
 
-  const openResult = useCallback(
-    (result: SearchResult) => {
-      rememberSearch(query);
-      router.push(
-        readerHref(result.instrumentId, result.number, result.anchor) as Href,
-      );
+  const quickLinks = [
+    {
+      title: '1999 Constitution',
+      badge: 'SUPREME LAW',
+      subtitle: 'Fundamental rights, executive, judiciary',
+      route: '/read/constitution-1999/s/cap-1-1' as Href,
+      accent: colors.primary,
     },
-    [query, rememberSearch],
-  );
-  const highlighted = activeResultIndex(query, cursor, results.length);
-  useEffect(() => {
-    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
-    const url = new URL(window.location.href);
-    if (query.trim()) url.searchParams.set('q', query);
-    else url.searchParams.delete('q');
-    const next = `${url.pathname}${url.search}${url.hash}`;
-    const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    if (next !== current) {
-      window.history.replaceState(window.history.state, '', next);
-    }
-  }, [query]);
-  useEffect(() => {
-    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
-    const onKey = (event: KeyboardEvent) => {
-      const target = event.target as {
-        getAttribute?: (name: string) => string | null;
-      } | null;
-      if (target?.getAttribute?.('aria-label') !== copy.searchPlaceholder) {
-        return;
-      }
-      const next = searchCursor(highlighted, results.length, event.key);
-      if (next === null) return;
-      event.preventDefault();
-      if (next === 'open') {
-        const result = results[highlighted];
-        if (result) openResult(result);
-        return;
-      }
-      setCursor({ query, index: next });
-    };
-    window.addEventListener('keydown', onKey, true);
-    return () => window.removeEventListener('keydown', onKey, true);
-  }, [highlighted, openResult, query, results]);
+    {
+      title: 'Criminal Code Act',
+      badge: 'OFFENCES & BAIL',
+      subtitle: 'Crimes, felony penalties, jurisdiction',
+      route: '/read/criminal-code-act/s/s-1' as Href,
+      accent: '#B45309',
+    },
+    {
+      title: 'Police Act 2020',
+      badge: 'CIVIC RIGHTS',
+      subtitle: 'Arrest procedures, search warrants, bail',
+      route: '/read/police-act-2020/s/s-1' as Href,
+      accent: '#0F766E',
+    },
+    {
+      title: 'Evidence Act 2011',
+      badge: 'PROCEDURE',
+      subtitle: 'Admissibility, burden of proof, witnesses',
+      route: '/read/evidence-act-2011/s/s-1' as Href,
+      accent: '#6366F1',
+    },
+  ];
 
   return (
     <Screen>
@@ -187,203 +75,390 @@ export default function LibraryScreen() {
         actionLabel="Settings"
         onAction={() => router.push('/settings')}
       />
-      <SearchField
-        value={query}
-        inputRef={inputRef}
-        autoFocus={fromInstrument.length > 0}
-        onChangeText={(value) => {
-          setQuery(value);
-          runSearch(value, limitToInstrument);
-        }}
-        onFocus={() => {
-          if (blurTimer.current) clearTimeout(blurTimer.current);
-          setFocused(true);
-        }}
-        onBlur={() => {
-          blurTimer.current = setTimeout(() => setFocused(false), 300);
-        }}
-        onClear={() => {
-          setQuery('');
-          setResults([]);
-          inputRef.current?.focus();
-        }}
-      />
-      {fromInstrument ? (
+
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hero Card: What Does The Law Say (Scenario Launcher) */}
         <Pressable
+          onPress={() => router.push('/scenario' as Href)}
           accessibilityRole="button"
-          accessibilityLabel={copy.search.inThisInstrument}
-          accessibilityState={{ selected: limitToInstrument }}
-          onPress={() => {
-            const next = limitToInstrument ? null : fromInstrument;
-            setLimitedInstrument(next);
-            runSearch(query, next === fromInstrument);
-          }}
-          style={{
-            alignSelf: 'flex-start',
-            marginTop: space.sm,
-            minHeight: space.target,
-            justifyContent: 'center',
-            paddingHorizontal: space.md,
-            borderRadius: radius.full,
-            borderWidth: 1,
-            borderColor: limitToInstrument ? colors.primary : colors.line,
-            backgroundColor: limitToInstrument
-              ? colors.primary
-              : colors.bgRaised,
-          }}
+          accessibilityLabel="What Does The Law Say Scenario Inquiry"
+          style={({ pressed }) => [
+            styles.heroCard,
+            elevation[2],
+            {
+              backgroundColor: scheme === 'dark' ? '#0F3B2E' : '#006B3F',
+              opacity: pressed ? 0.95 : 1,
+              transform: [{ scale: pressed ? 0.99 : 1 }],
+            },
+          ]}
         >
-          <Text
-            style={{
-              color: limitToInstrument ? '#FFFFFF' : colors.ink,
-              fontFamily: fonts.interMedium,
-              fontSize: typeScale.caption.fontSize,
-              lineHeight: typeScale.caption.lineHeight,
-            }}
-          >
-            {copy.search.inThisInstrument}
+          <View style={styles.heroGlow} />
+          <View style={styles.heroHeader}>
+            <View style={styles.heroSparkleBadge}>
+              <Text style={styles.heroSparkleIcon}>✨</Text>
+              <Text style={styles.heroBadgeText}>AI LEGAL INTELLIGENCE</Text>
+            </View>
+          </View>
+
+          <Text style={styles.heroTitle}>What Does The Law Say?</Text>
+          <Text style={styles.heroSubtitle}>
+            Describe any situation in plain English. Get direct answers backed
+            by verified statutory provisions and exact citations.
           </Text>
+
+          {/* Simulated Input Field / Prompt Trigger */}
+          <View style={styles.heroInputContainer}>
+            <Text style={styles.heroInputPlaceholder}>
+              e.g. Can the police search my phone without a warrant?
+            </Text>
+            <View style={styles.heroAskButton}>
+              <Text style={styles.heroAskText}>Ask →</Text>
+            </View>
+          </View>
+
+          {/* Quick Scenario Chips */}
+          <View style={styles.chipRow}>
+            {['Arrest Powers', 'Tenancy Notice', 'Workplace Rights'].map(
+              (tag) => (
+                <View key={tag} style={styles.chip}>
+                  <Text style={styles.chipText}>{tag}</Text>
+                </View>
+              ),
+            )}
+          </View>
         </Pressable>
-      ) : null}
-      <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
-        {searching ? (
-          <View style={{ marginTop: space.unit * 2 }}>
-            {!searchIndex.ready ? (
-              <Text
-                style={{
-                  marginTop: space.unit * 4,
-                  color: colors.inkMuted,
-                  fontSize: typeScale.ui.fontSize,
-                  lineHeight: typeScale.ui.lineHeight,
-                }}
-              >
-                {copy.search.preparing}
+
+        {/* Continue Reading Card */}
+        {ready && position ? (
+          <View style={styles.section}>
+            <ContinueCard
+              kicker={copy.library.continue}
+              title={reading?.shortTitle ?? 'Continue Reading'}
+              detail={continueSectionLabel(
+                located
+                  ? {
+                      number: located.section.number,
+                      heading: located.section.heading,
+                    }
+                  : null,
+                position.sectionId,
+              )}
+              onPress={() => {
+                if (!located || !reading) return;
+                router.push(
+                  readerHref(
+                    reading.id,
+                    located.section.number,
+                    position.anchor,
+                  ) as Href,
+                );
+              }}
+            />
+          </View>
+        ) : null}
+
+        {/* Quick Access Grid */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.ink }]}>
+              Key Legal Instruments
+            </Text>
+            <Pressable
+              onPress={() => router.push('/explore' as Href)}
+              accessibilityRole="button"
+              accessibilityLabel="View all instruments"
+            >
+              <Text style={[styles.sectionLink, { color: colors.primary }]}>
+                Browse All →
               </Text>
-            ) : null}
-            {searchIndex.ready && results.length === 0 ? (
-              <Text
-                style={{
-                  marginTop: space.unit * 4,
-                  color: colors.inkMuted,
-                  fontSize: typeScale.ui.fontSize,
-                  lineHeight: typeScale.ui.lineHeight,
-                }}
+            </Pressable>
+          </View>
+
+          <View style={styles.grid}>
+            {quickLinks.map((item) => (
+              <Pressable
+                key={item.title}
+                onPress={() => router.push(item.route)}
+                accessibilityRole="button"
+                accessibilityLabel={item.title}
+                style={({ pressed }) => [
+                  styles.gridCard,
+                  elevation[1],
+                  {
+                    backgroundColor: colors.bgRaised,
+                    borderColor: colors.line,
+                    opacity: pressed ? 0.9 : 1,
+                  },
+                ]}
               >
-                {copy.search.noResults}
-              </Text>
-            ) : null}
-            {results.map((result, index) => (
-              <SearchResultRow
-                key={`${result.sectionId}:${result.anchor ?? ''}`}
-                result={result}
-                selected={searching && index === highlighted}
-                onPress={() => openResult(result)}
-              />
+                <View
+                  style={[
+                    styles.gridBadge,
+                    { backgroundColor: item.accent + '15' },
+                  ]}
+                >
+                  <Text style={[styles.gridBadgeText, { color: item.accent }]}>
+                    {item.badge}
+                  </Text>
+                </View>
+                <Text style={[styles.gridTitle, { color: colors.ink }]}>
+                  {item.title}
+                </Text>
+                <Text
+                  style={[styles.gridSubtitle, { color: colors.inkMuted }]}
+                  numberOfLines={2}
+                >
+                  {item.subtitle}
+                </Text>
+              </Pressable>
             ))}
           </View>
-        ) : (
-          <View>
-            {showRecent ? (
-              <View style={{ marginTop: space.unit * 4 }}>
-                <Text
-                  style={{
-                    color: colors.inkMuted,
-                    fontSize: typeScale.ui.fontSize,
-                    lineHeight: typeScale.ui.lineHeight,
-                  }}
-                >
-                  {copy.search.recent}
-                </Text>
-                {recentQueries.map((item) => (
-                  <Pressable
-                    key={item}
-                    accessibilityRole="button"
-                    accessibilityLabel={item}
-                    onPress={() => {
-                      setQuery(item);
-                      runSearch(item, limitToInstrument);
-                      inputRef.current?.focus();
-                    }}
-                    style={{
-                      minHeight: space.target,
-                      justifyContent: 'center',
-                      borderBottomWidth: 1,
-                      borderBottomColor: colors.line,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: colors.ink,
-                        fontSize: typeScale.ui.fontSize,
-                        lineHeight: typeScale.ui.lineHeight,
-                      }}
-                    >
-                      {item}
-                    </Text>
-                  </Pressable>
-                ))}
+        </View>
+
+        {/* Community & Discussion Teaser */}
+        <View style={styles.section}>
+          <Pressable
+            onPress={() => router.push('/discuss' as Href)}
+            accessibilityRole="button"
+            accessibilityLabel="Legal Community & Discussions"
+            style={({ pressed }) => [
+              styles.communityCard,
+              elevation[1],
+              {
+                backgroundColor: colors.bgRaised,
+                borderColor: colors.line,
+                opacity: pressed ? 0.92 : 1,
+              },
+            ]}
+          >
+            <View style={styles.communityContent}>
+              <View
+                style={[
+                  styles.communityIconWrap,
+                  { backgroundColor: colors.primarySoft },
+                ]}
+              >
+                <Text style={styles.communityIcon}>💬</Text>
               </View>
-            ) : null}
-            {ready && position ? (
-              <ContinueCard
-                kicker={copy.library.continue}
-                title={reading?.shortTitle ?? ''}
-                detail={continueSectionLabel(
-                  located
-                    ? {
-                        number: located.section.number,
-                        heading: located.section.heading,
-                      }
-                    : null,
-                  position.sectionId,
-                )}
-                onPress={() => {
-                  if (!located || !reading) {
-                    return;
-                  }
-                  router.push(
-                    readerHref(
-                      reading.id,
-                      located.section.number,
-                      position.anchor,
-                    ) as Href,
-                  );
-                }}
-              />
-            ) : null}
-            <View style={{ marginTop: space.unit * 4 }}>
-              {catalogue.constitutions.map((item) => (
-                <InstrumentRow
-                  key={item.id}
-                  title={item.shortTitle}
-                  detail={item.versionLabel}
-                  onPress={() => router.push(`/read/${item.id}` as Href)}
-                />
-              ))}
+              <View style={styles.communityText}>
+                <Text style={[styles.communityTitle, { color: colors.ink }]}>
+                  Community Discussions
+                </Text>
+                <Text
+                  style={[styles.communityDesc, { color: colors.inkMuted }]}
+                >
+                  Create public or private debates with friends, lawyers, and
+                  citizens on Nigerian law.
+                </Text>
+              </View>
             </View>
-            {catalogue.acts.length > 0 ? (
-              <View style={{ marginTop: space.unit * 6 }}>
-                <Text
-                  style={{
-                    color: colors.ink,
-                    fontSize: typeScale.heading.fontSize,
-                    lineHeight: typeScale.heading.lineHeight,
-                  }}
-                >
-                  {copy.library.acts}
-                </Text>
-                {catalogue.acts.map((item) => (
-                  <InstrumentRow
-                    key={item.id}
-                    title={item.shortTitle}
-                    detail={actRowDetail(item)}
-                    onPress={() => router.push(`/read/${item.id}` as Href)}
-                  />
-                ))}
-              </View>
-            ) : null}
-          </View>
-        )}
+          </Pressable>
+        </View>
       </ScrollView>
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: space.xl,
+  },
+  heroCard: {
+    borderRadius: radius.card,
+    padding: space.lg,
+    marginVertical: space.md,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  heroGlow: {
+    position: 'absolute',
+    top: -50,
+    right: -50,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(212, 160, 23, 0.18)',
+  },
+  heroHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: space.sm,
+  },
+  heroSparkleBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radius.full,
+  },
+  heroSparkleIcon: {
+    fontSize: 12,
+  },
+  heroBadgeText: {
+    color: '#FFFFFF',
+    fontFamily: fonts.interSemiBold,
+    fontSize: 10,
+    letterSpacing: 0.8,
+    fontWeight: '600',
+  },
+  heroTitle: {
+    color: '#FFFFFF',
+    fontFamily: fonts.interBold,
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  heroSubtitle: {
+    color: 'rgba(255, 255, 255, 0.88)',
+    fontFamily: fonts.interRegular,
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: space.md,
+  },
+  heroInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: radius.field,
+    paddingHorizontal: space.md,
+    paddingVertical: 10,
+    marginBottom: space.sm,
+  },
+  heroInputPlaceholder: {
+    flex: 1,
+    color: '#656D76',
+    fontFamily: fonts.interRegular,
+    fontSize: 13,
+  },
+  heroAskButton: {
+    backgroundColor: '#006B3F',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.sm,
+  },
+  heroAskText: {
+    color: '#FFFFFF',
+    fontFamily: fonts.interSemiBold,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  chipRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: space.xs,
+  },
+  chip: {
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radius.full,
+  },
+  chipText: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontFamily: fonts.interMedium,
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  section: {
+    marginTop: space.lg,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: space.sm,
+  },
+  sectionTitle: {
+    fontFamily: fonts.interBold,
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '700',
+  },
+  sectionLink: {
+    fontFamily: fonts.interSemiBold,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: space.sm,
+  },
+  gridCard: {
+    width: '48%',
+    padding: space.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+  },
+  gridBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.full,
+    marginBottom: space.sm,
+  },
+  gridBadgeText: {
+    fontFamily: fonts.interSemiBold,
+    fontSize: 9,
+    letterSpacing: 0.5,
+    fontWeight: '600',
+  },
+  gridTitle: {
+    fontFamily: fonts.interSemiBold,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  gridSubtitle: {
+    fontFamily: fonts.interRegular,
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  communityCard: {
+    borderRadius: radius.card,
+    borderWidth: 1,
+    padding: space.md,
+  },
+  communityContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+  },
+  communityIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  communityIcon: {
+    fontSize: 20,
+  },
+  communityText: {
+    flex: 1,
+  },
+  communityTitle: {
+    fontFamily: fonts.interSemiBold,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  communityDesc: {
+    fontFamily: fonts.interRegular,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+});

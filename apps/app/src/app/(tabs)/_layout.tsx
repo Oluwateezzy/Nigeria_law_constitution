@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { TabBarIcon } from '@/components/TabBarIcon';
 import { fonts } from '@/theme/tokens';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -22,14 +23,89 @@ export default function TabLayout() {
         },
         tabBarLabelStyle: {
           fontFamily: fonts.interMedium,
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '500',
         },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Home' }} />
-      <Tabs.Screen name="scenario" options={{ title: 'Scenario' }} />
-      <Tabs.Screen name="notes" options={{ title: 'Notes' }} />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ focused, color }) => (
+            <TabBarIcon
+              focused={focused}
+              name="home"
+              outlineName="home-outline"
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          title: 'Explore',
+          tabBarIcon: ({ focused, color }) => (
+            <TabBarIcon
+              focused={focused}
+              name="compass"
+              outlineName="compass-outline"
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="discuss"
+        options={{
+          title: 'Discuss',
+          tabBarIcon: ({ focused, color }) => (
+            <TabBarIcon
+              focused={focused}
+              name="chatbubbles"
+              outlineName="chatbubbles-outline"
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notes"
+        options={{
+          title: 'Notes',
+          tabBarIcon: ({ focused, color }) => (
+            <TabBarIcon
+              focused={focused}
+              name="bookmark"
+              outlineName="bookmark-outline"
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: 'More',
+          tabBarIcon: ({ focused, color }) => (
+            <TabBarIcon
+              focused={focused}
+              name="grid"
+              outlineName="grid-outline"
+              color={color}
+            />
+          ),
+        }}
+      />
+      {/* Hidden route for backwards compatibility with V1 scenario links */}
+      <Tabs.Screen
+        name="scenario"
+        options={{
+          href: null,
+          title: 'Scenario',
+        }}
+      />
     </Tabs>
   );
 }

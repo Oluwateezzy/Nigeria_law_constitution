@@ -11,12 +11,14 @@ import {
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
 import { useColorScheme, View } from 'react-native';
 import '@/account/crypto-polyfill';
 import { AuthProvider } from '@/account/AuthProvider';
 import { CrashBoundary } from '@/crash/CrashBoundary';
 import { PlusAlias } from '@/billing/PlusAlias';
 import { NotesProvider } from '@/notes/NotesProvider';
+import { hasCompletedOnboarding, OnboardingSlider } from '@/onboarding';
 import { PreferencesProvider } from '@/persistence/PreferencesProvider';
 import { SearchProvider } from '@/search/SearchProvider';
 import { SyncProvider } from '@/sync/SyncProvider';
@@ -62,6 +64,35 @@ export default function RootLayout() {
 
 function ThemedStack() {
   const { scheme, colors } = useTheme();
+  const [isOnboardingChecked, setIsOnboardingChecked] = useState(false);
+  const [completedOnboarding, setCompletedOnboarding] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    hasCompletedOnboarding().then((done) => {
+      if (mounted) {
+        setCompletedOnboarding(done);
+        setIsOnboardingChecked(true);
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (!isOnboardingChecked) {
+    return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
+  }
+
+  if (!completedOnboarding) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg }}>
+        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+        <OnboardingSlider onComplete={() => setCompletedOnboarding(true)} />
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />

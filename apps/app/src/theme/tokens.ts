@@ -42,11 +42,15 @@ export const gradient = {
 
 export const fonts = {
   inter: 'Inter_400Regular',
+  interRegular: 'Inter_400Regular',
   interMedium: 'Inter_500Medium',
   interSemi: 'Inter_600SemiBold',
+  interSemiBold: 'Inter_600SemiBold',
   interBold: 'Inter_700Bold',
   newsreader: 'Newsreader_400Regular',
+  newsreaderRegular: 'Newsreader_400Regular',
   newsreaderSemi: 'Newsreader_600SemiBold',
+  newsreaderSemiBold: 'Newsreader_600SemiBold',
 } as const;
 
 export const type = {
