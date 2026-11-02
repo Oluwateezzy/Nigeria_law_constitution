@@ -11,6 +11,7 @@ export type NoteSection = {
 export type NoteListItem = {
   id: string;
   title: string;
+  bodyPreview?: string;
   sectionId: string | null;
   sectionNumber: string | null;
   instrumentId: string | null;
@@ -27,12 +28,38 @@ export const unattachedGroupId = 'unattached';
 export const unattachedGroupTitle = 'On their own';
 
 export function noteRowTitle(
+  title: string | null | undefined,
+  body: string,
+  sectionNumber?: string | null,
+): string;
+export function noteRowTitle(
   body: string,
   sectionNumber: string | null,
+): string;
+export function noteRowTitle(
+  firstArg: string | null | undefined,
+  secondArg?: string | null,
+  thirdArg?: string | null,
 ): string {
-  const first = (body.split('\n')[0] ?? '').trim();
-  if (first.length > 0) return first;
-  if (sectionNumber) return `Note on section ${sectionNumber}`;
+  if (arguments.length >= 3) {
+    const title = firstArg?.trim();
+    if (title && title.length > 0) return title;
+    const body = secondArg ?? '';
+    const first = (body.split('\n')[0] ?? '').trim();
+    if (first.length > 0) return first;
+    if (thirdArg) return `Note on section ${thirdArg}`;
+    return 'Note';
+  }
+  if (firstArg?.includes('\n') || (secondArg && /^\d+/.test(secondArg))) {
+    const first = ((firstArg ?? '').split('\n')[0] ?? '').trim();
+    if (first.length > 0) return first;
+    if (secondArg) return `Note on section ${secondArg}`;
+    return 'Note';
+  }
+  const title = firstArg?.trim();
+  if (title && title.length > 0) return title;
+  const bodyFirst = ((secondArg ?? '').split('\n')[0] ?? '').trim();
+  if (bodyFirst.length > 0) return bodyFirst;
   return 'Note';
 }
 
@@ -51,9 +78,15 @@ export function groupLivingNotes(
   for (const note of notes) {
     if (note.deletedAt) continue;
     const section = note.sectionId ? byId.get(note.sectionId) : undefined;
+    const itemTitle = noteRowTitle(note.title, note.body, section?.number ?? null);
+    const bodyTrimmed = note.body.replace(/\n+/g, ' ').trim();
     const item: NoteListItem = {
       id: note.id,
-      title: noteRowTitle(note.body, section?.number ?? null),
+      title: itemTitle,
+      bodyPreview:
+        note.title && bodyTrimmed.length > 0 && bodyTrimmed !== itemTitle
+          ? bodyTrimmed
+          : undefined,
       sectionId: note.sectionId,
       sectionNumber: section?.number ?? null,
       instrumentId: note.instrumentId,
@@ -77,12 +110,10 @@ export function groupLivingNotes(
   );
   for (const group of ordered) {
     group.items.sort((left, right) => {
-      const leftRank = sectionRank(left.sectionNumber ?? '');
-      const rightRank = sectionRank(right.sectionNumber ?? '');
-      if (leftRank[0] !== rightRank[0]) return leftRank[0] - rightRank[0];
-      if (leftRank[1] !== rightRank[1]) {
-        return leftRank[1].localeCompare(rightRank[1]);
-      }
+      const cmp = left.title.localeCompare(right.title, undefined, {
+        sensitivity: 'base',
+      });
+      if (cmp !== 0) return cmp;
       if (left.updatedAt !== right.updatedAt) {
         return left.updatedAt < right.updatedAt ? 1 : -1;
       }

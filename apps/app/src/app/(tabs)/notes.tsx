@@ -118,21 +118,32 @@ export default function NotesScreen() {
                     contentStyle={{ padding: space.md }}
                   >
                     <Text
-                      numberOfLines={2}
+                      numberOfLines={1}
                       style={{
                         color: colors.ink,
-                        fontFamily: fonts.interMedium,
-                        fontSize: 15,
-                        lineHeight: 21,
-                        fontWeight: '500',
-                        marginBottom:
-                          item.sectionId && item.sectionNumber && item.instrumentId
-                            ? space.xs
-                            : 0,
+                        fontFamily: fonts.interSemiBold,
+                        fontSize: 16,
+                        lineHeight: 22,
+                        fontWeight: '600',
+                        marginBottom: item.bodyPreview ? 4 : space.xs,
                       }}
                     >
                       {item.title}
                     </Text>
+                    {item.bodyPreview ? (
+                      <Text
+                        numberOfLines={2}
+                        style={{
+                          color: colors.inkMuted,
+                          fontFamily: fonts.interRegular,
+                          fontSize: 14,
+                          lineHeight: 20,
+                          marginBottom: space.xs,
+                        }}
+                      >
+                        {item.bodyPreview}
+                      </Text>
+                    ) : null}
                     {item.sectionId && item.sectionNumber && item.instrumentId ? (
                       <Pressable
                         accessibilityRole="link"

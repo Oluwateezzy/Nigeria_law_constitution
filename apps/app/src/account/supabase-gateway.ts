@@ -9,6 +9,7 @@ import type {
 
 type NoteRow = {
   id: string;
+  title: string | null;
   section_id: string | null;
   instrument_id: string | null;
   body: string;
@@ -26,6 +27,7 @@ function citationsText(value: unknown): string | null {
 function noteFromRow(row: NoteRow): Note {
   return {
     id: row.id,
+    title: typeof row.title === 'string' ? row.title : null,
     sectionId: row.section_id,
     instrumentId: row.instrument_id,
     body: row.body,
@@ -47,6 +49,7 @@ export function supabaseGateway(
         notes.map((note) => ({
           id: note.id,
           user_id: userId,
+          title: note.title ?? null,
           section_id: note.sectionId,
           instrument_id: note.instrumentId,
           body: note.body,
@@ -61,7 +64,7 @@ export function supabaseGateway(
       const { data, error } = await client
         .from('notes')
         .select(
-          'id, section_id, instrument_id, body, created_at, updated_at, deleted_at',
+          'id, title, section_id, instrument_id, body, created_at, updated_at, deleted_at',
         );
       if (error) throw new Error(error.message);
       return ((data ?? []) as NoteRow[]).map(noteFromRow);

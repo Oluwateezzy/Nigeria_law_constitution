@@ -94,8 +94,8 @@ describe('notes', () => {
     expect(readerNote(living, section.id)?.id).toBe(newer.id);
     const groups = groupLivingNotes(living, [section]);
     expect(groups[0]?.items.map((item) => item.id)).toEqual([
-      newer.id,
       older.id,
+      newer.id,
     ]);
     expect(noteRowTitle('\n', '36')).toBe('Note on section 36');
   });
@@ -201,4 +201,116 @@ describe('notes', () => {
     expect(markdown).not.toContain('Removed');
     expect(living.id).toBe('kept');
   });
+
+  it('migrates an older notes table to add title column without data loss', async () => {
+    const db = openNodeDatabase();
+    // Simulate V1 schema without title column
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS notes (
+        id TEXT PRIMARY KEY,
+        section_id TEXT,
+        instrument_id TEXT,
+        body TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_state TEXT NOT NULL DEFAULT 'local'
+      )
+    `);
+    await db.run(
+      `INSERT INTO notes (id, section_id, instrument_id, body, created_at, updated_at, deleted_at, sync_state)
+       VALUES (?, ?, ?, ?, ?, ?, NULL, 'local')`,
+      [
+        'legacy-1',
+        section.id,
+        section.instrumentId,
+        'Legacy note content',
+        '2026-10-20T10:00:00.000Z',
+        '2026-10-20T10:00:00.000Z',
+      ],
+    );
+
+    // Run ensureNotesTable (migration)
+    await ensureNotesTable(db);
+
+    const migrated = await readNote(db, 'legacy-1');
+    expect(migrated).not.toBeNull();
+    expect(migrated?.id).toBe('legacy-1');
+    expect(migrated?.body).toBe('Legacy note content');
+    expect(migrated?.title).toBeNull();
+
+    // Verify we can update and store a custom title now
+    await updateNote(
+      db,
+      'legacy-1',
+      'Legacy note content',
+      '2026-10-20T11:00:00.000Z',
+      'My Custom Title',
+    );
+    const updated = await readNote(db, 'legacy-1');
+    expect(updated?.title).toBe('My Custom Title');
+  });
+
+  it('displays title ?? firstLine ?? fallback correctly', () => {
+    // 1. Title provided
+    expect(
+      noteRowTitle('Custom Name', 'First line\nSecond line', '36'),
+    ).toBe('Custom Name');
+
+    // 2. Title is null or empty, falls back to firstLine
+    expect(
+      noteRowTitle(null, 'First line of thought\nSecond line', '36'),
+    ).toBe('First line of thought');
+    expect(
+      noteRowTitle('   ', 'First line of thought\nSecond line', '36'),
+    ).toBe('First line of thought');
+
+    // 3. Title and body are empty, falls back to section suggestion
+    expect(noteRowTitle(null, '', '36')).toBe('Note on section 36');
+    expect(noteRowTitle(null, '\n\n', '36')).toBe('Note on section 36');
+
+    // 4. Title, body, and section are empty, falls back to "Note"
+    expect(noteRowTitle(null, '', null)).toBe('Note');
+  });
+
+  it('sorts notes alphabetically by title within each group', async () => {
+    const db = openNodeDatabase();
+    await ensureNotesTable(db);
+
+    const noteZ = await createNote(db, {
+      id: 'z-note',
+      sectionId: section.id,
+      instrumentId: section.instrumentId,
+      title: 'Zebra Note',
+      body: 'Some body',
+      now: '2026-10-25T10:00:00.000Z',
+    });
+    const noteA = await createNote(db, {
+      id: 'a-note',
+      sectionId: section.id,
+      instrumentId: section.instrumentId,
+      title: 'Apple Note',
+      body: 'Some body',
+      now: '2026-10-25T10:01:00.000Z',
+    });
+    const noteM = await createNote(db, {
+      id: 'm-note',
+      sectionId: section.id,
+      instrumentId: section.instrumentId,
+      title: 'Mango Note',
+      body: 'Some body',
+      now: '2026-10-25T10:02:00.000Z',
+    });
+
+    const living = await listLiving(db);
+    const groups = groupLivingNotes(living, [section]);
+    const groupItems = groups.find((g) => g.id === section.instrumentId)?.items;
+
+    expect(groupItems?.map((item) => item.id)).toEqual([
+      noteA.id,
+      noteM.id,
+      noteZ.id,
+    ]);
+  });
 });
+

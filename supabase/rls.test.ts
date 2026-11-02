@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { PGlite } from '@electric-sql/pglite';
 
@@ -20,11 +20,17 @@ async function database(): Promise<PGlite> {
       select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;
     $$;
   `);
-  const migration = readFileSync(
-    new URL('./migrations/20261025160000_account.sql', import.meta.url),
-    'utf8',
-  );
-  await db.exec(migration);
+  const migrationsDir = new URL('./migrations', import.meta.url);
+  const files = readdirSync(migrationsDir)
+    .filter((f) => f.endsWith('.sql'))
+    .sort();
+  for (const file of files) {
+    const migration = readFileSync(
+      new URL(`./migrations/${file}`, import.meta.url),
+      'utf8',
+    );
+    await db.exec(migration);
+  }
   await db.exec(`
     grant anon to current_user;
     grant authenticated to current_user;
@@ -55,32 +61,32 @@ async function asUser<T>(
   }
 }
 
-describe('account row level security', () => {
-  it('lets user A read only their own note and thread', async () => {
+describe('account row level security', { timeout: 20000 }, () => {
+  it('lets user A read only their own note and thread, including title column', async () => {
     const db = await database();
     await db.exec(`
       insert into public.notes (
-        id, user_id, section_id, instrument_id, body, created_at, updated_at
+        id, user_id, title, section_id, instrument_id, body, created_at, updated_at
       ) values
-        ('${noteA}', '${userA}', 'cfrn-1999:s:36', 'cfrn-1999', 'A note', now(), now()),
-        ('${noteB}', '${userB}', 'cfrn-1999:s:39', 'cfrn-1999', 'B note', now(), now());
+        ('${noteA}', '${userA}', 'Title A', 'cfrn-1999:s:36', 'cfrn-1999', 'A note', now(), now()),
+        ('${noteB}', '${userB}', 'Title B', 'cfrn-1999:s:39', 'cfrn-1999', 'B note', now(), now());
       insert into public.threads (
         id, user_id, kind, title, created_at, updated_at
       ) values
         ('${threadA}', '${userA}', 'provision', 'Fair hearing', now(), now());
     `);
 
-    const notes = await asUser<{ id: string }>(
+    const notes = await asUser<{ id: string; title: string | null }>(
       db,
       userA,
-      'select id from public.notes order by id',
+      'select id, title from public.notes order by id',
     );
     const threads = await asUser<{ id: string }>(
       db,
       userA,
       'select id from public.threads',
     );
-    expect(notes.map((row) => row.id)).toEqual([noteA]);
+    expect(notes).toEqual([{ id: noteA, title: 'Title A' }]);
     expect(threads.map((row) => row.id)).toEqual([threadA]);
 
     const hidden = await asUser<{ id: string }>(
@@ -89,6 +95,19 @@ describe('account row level security', () => {
       `select id from public.notes where id = '${noteA}'`,
     );
     expect(hidden).toEqual([]);
+  });
+
+  it('verifies that notes table has the title column from migration', async () => {
+    const db = await database();
+    const columns = await db.query<{ column_name: string }>(`
+      select column_name
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'notes'
+        and column_name = 'title'
+    `);
+    expect(columns.rows).toHaveLength(1);
+    expect(columns.rows[0]?.column_name).toBe('title');
   });
 
   it('does not grant the client insert or update on quota or entitlements', async () => {

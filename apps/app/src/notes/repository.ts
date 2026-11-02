@@ -2,6 +2,7 @@ import type { SqlDatabase } from '@/search/driver';
 
 export type Note = {
   id: string;
+  title: string | null;
   sectionId: string | null;
   instrumentId: string | null;
   body: string;
@@ -16,6 +17,7 @@ export const autosaveIntervalMs = 3000;
 const notesSchema = `
 CREATE TABLE IF NOT EXISTS notes (
   id TEXT PRIMARY KEY,
+  title TEXT,
   section_id TEXT,
   instrument_id TEXT,
   body TEXT NOT NULL,
@@ -60,6 +62,11 @@ export function shouldAutosave(
 
 export async function ensureNotesTable(db: SqlDatabase): Promise<void> {
   await db.exec(notesSchema);
+  const columns = await db.all(`PRAGMA table_info(notes)`);
+  const hasTitle = columns.some((col) => col.name === 'title');
+  if (!hasTitle) {
+    await db.exec(`ALTER TABLE notes ADD COLUMN title TEXT;`);
+  }
 }
 
 function read(row: Record<string, unknown> | undefined): Note | null {
@@ -67,6 +74,7 @@ function read(row: Record<string, unknown> | undefined): Note | null {
   const sync = row.sync_state;
   return {
     id: row.id,
+    title: typeof row.title === 'string' ? row.title : null,
     sectionId: typeof row.section_id === 'string' ? row.section_id : null,
     instrumentId:
       typeof row.instrument_id === 'string' ? row.instrument_id : null,
@@ -91,6 +99,7 @@ export async function createNote(
   input: {
     sectionId: string | null;
     instrumentId: string | null;
+    title?: string | null;
     body: string;
     now: string;
     id?: string;
@@ -99,9 +108,17 @@ export async function createNote(
   const id = input.id ?? createNoteId();
   await db.run(
     `INSERT INTO notes (
-      id, section_id, instrument_id, body, created_at, updated_at, deleted_at, sync_state
-    ) VALUES (?, ?, ?, ?, ?, ?, NULL, 'local')`,
-    [id, input.sectionId, input.instrumentId, input.body, input.now, input.now],
+      id, title, section_id, instrument_id, body, created_at, updated_at, deleted_at, sync_state
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 'local')`,
+    [
+      id,
+      input.title ?? null,
+      input.sectionId,
+      input.instrumentId,
+      input.body,
+      input.now,
+      input.now,
+    ],
   );
   const note = await readNote(db, id);
   if (!note) throw new Error('The note was not stored.');
@@ -113,10 +130,11 @@ export async function updateNote(
   id: string,
   body: string,
   now: string,
+  title?: string | null,
 ): Promise<Note> {
   await db.run(
-    `UPDATE notes SET body = ?, updated_at = ?, sync_state = 'local' WHERE id = ?`,
-    [body, now, id],
+    `UPDATE notes SET title = ?, body = ?, updated_at = ?, sync_state = 'local' WHERE id = ?`,
+    [title ?? null, body, now, id],
   );
   const note = await readNote(db, id);
   if (!note) throw new Error('The note was not stored.');
@@ -175,16 +193,20 @@ export async function saveDraft(
     id: string | null;
     sectionId: string | null;
     instrumentId: string | null;
+    title?: string | null;
     body: string;
     now: string;
   },
 ): Promise<Note | null> {
-  if (input.body.trim().length === 0) return null;
+  const hasBody = input.body.trim().length > 0;
+  const hasTitle = (input.title ?? '').trim().length > 0;
+  if (!hasBody && !hasTitle) return null;
   const note = input.id
-    ? await updateNote(db, input.id, input.body, input.now)
+    ? await updateNote(db, input.id, input.body, input.now, input.title)
     : await createNote(db, {
         sectionId: input.sectionId,
         instrumentId: input.instrumentId,
+        title: input.title,
         body: input.body,
         now: input.now,
       });
@@ -202,9 +224,10 @@ export async function listAllNotes(db: SqlDatabase): Promise<Note[]> {
 export async function replaceNote(db: SqlDatabase, note: Note): Promise<void> {
   await db.run(
     `INSERT INTO notes (
-      id, section_id, instrument_id, body, created_at, updated_at, deleted_at, sync_state
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      id, title, section_id, instrument_id, body, created_at, updated_at, deleted_at, sync_state
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET
+      title = excluded.title,
       section_id = excluded.section_id,
       instrument_id = excluded.instrument_id,
       body = excluded.body,
@@ -214,6 +237,7 @@ export async function replaceNote(db: SqlDatabase, note: Note): Promise<void> {
       sync_state = excluded.sync_state`,
     [
       note.id,
+      note.title,
       note.sectionId,
       note.instrumentId,
       note.body,
@@ -235,11 +259,14 @@ export async function dismissDraft(
     id: string | null;
     sectionId: string | null;
     instrumentId: string | null;
+    title?: string | null;
     body: string;
     now: string;
   },
 ): Promise<void> {
-  if (input.body.trim().length === 0) {
+  const hasBody = input.body.trim().length > 0;
+  const hasTitle = (input.title ?? '').trim().length > 0;
+  if (!hasBody && !hasTitle) {
     if (input.id) await tombstoneNote(db, input.id, input.now);
     return;
   }

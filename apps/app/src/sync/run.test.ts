@@ -172,4 +172,91 @@ describe('sync run', () => {
       'from the other device',
     ]);
   });
+
+  it('syncs note title field with last-write-wins merge', async () => {
+    const db = openNodeDatabase();
+    await ensureNotesTable(db);
+    await ensureSyncTables(db);
+
+    // 1. Create a note locally with a custom title
+    const local = await createNote(db, {
+      id: '22222222-2222-4222-8222-222222222222',
+      sectionId: 'cfrn-1999:s:36',
+      instrumentId: 'cfrn-1999',
+      title: 'Local Title',
+      body: 'Local body',
+      now: '2026-10-25T14:00:00.000Z',
+    });
+
+    let sentTitle: string | null = null;
+    const gateway: SyncGateway = {
+      async upsertNotes(notes) {
+        sentTitle = notes[0]?.title ?? null;
+      },
+      async listNotes() {
+        return [
+          // Remote has an updated note from another device with a later timestamp
+          {
+            id: local.id,
+            sectionId: local.sectionId,
+            instrumentId: local.instrumentId,
+            title: 'Remote Newer Title',
+            body: 'Remote newer body',
+            createdAt: local.createdAt,
+            updatedAt: '2026-10-25T15:00:00.000Z',
+            deletedAt: null,
+            syncState: 'synced',
+          },
+          // And a new note created on another device
+          {
+            id: '33333333-3333-4333-8333-333333333333',
+            sectionId: null,
+            instrumentId: null,
+            title: 'Created on other phone',
+            body: 'Body from other phone',
+            createdAt: '2026-10-25T15:05:00.000Z',
+            updatedAt: '2026-10-25T15:05:00.000Z',
+            deletedAt: null,
+            syncState: 'synced',
+          },
+        ];
+      },
+      async upsertThreads() {},
+      async listThreads() {
+        return [];
+      },
+      async upsertMessages() {},
+      async listMessages() {
+        return [];
+      },
+      async upsertPosition() {},
+      async listPosition() {
+        return null;
+      },
+      async deleteAccount() {},
+    };
+
+    await runSync(db, gateway, {
+      choice: 'upload',
+      choiceAt: '2026-10-25T13:00:00.000Z',
+      position: null,
+    });
+
+    // Pushed note included local title
+    expect(sentTitle).toBe('Local Title');
+
+    // Local DB now has merged notes with remote title winning because of later timestamp
+    const all = await listAllNotes(db);
+    const updatedLocal = all.find((n) => n.id === local.id);
+    expect(updatedLocal?.title).toBe('Remote Newer Title');
+    expect(updatedLocal?.body).toBe('Remote newer body');
+
+    // Note from other phone is stored with its title
+    const fromOtherPhone = all.find(
+      (n) => n.id === '33333333-3333-4333-8333-333333333333',
+    );
+    expect(fromOtherPhone?.title).toBe('Created on other phone');
+    expect(fromOtherPhone?.body).toBe('Body from other phone');
+  });
 });
+

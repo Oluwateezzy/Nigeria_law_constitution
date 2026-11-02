@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { NoteSheet } from '@/components/NoteSheet';
+import { NamedNoteSheet } from '@/components/NamedNoteSheet';
 import { useSearch } from '@/search/SearchProvider';
 import { onNotesPulled, notifyNotesChanged } from '@/sync/bus';
 import { noteSections } from './catalog';
@@ -27,8 +27,10 @@ import { shareNotesMarkdown } from './share';
 export type NoteDraft = {
   key: string;
   id: string | null;
+  title: string | null;
   sectionId: string | null;
   instrumentId: string | null;
+  suggestedTitle?: string;
   body: string;
 };
 
@@ -96,11 +98,17 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   const openSection = useCallback(
     (input: { sectionId: string; instrumentId: string }) => {
       const existing = readerNote(notesRef.current, input.sectionId);
+      const sectionItem = noteSections().find((s) => s.id === input.sectionId);
+      const suggested = sectionItem
+        ? `Note on section ${sectionItem.number}`
+        : undefined;
       const next: NoteDraft = {
         key: existing?.id ?? `new-${input.sectionId}-${elapsedNow()}`,
         id: existing?.id ?? null,
+        title: existing?.title ?? null,
         sectionId: input.sectionId,
         instrumentId: input.instrumentId,
+        suggestedTitle: suggested,
         body: existing?.body ?? '',
       };
       draftRef.current = next;
@@ -112,11 +120,19 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   const openNote = useCallback((id: string) => {
     const existing = notesRef.current.find((note) => note.id === id);
     if (!existing) return;
+    const sectionItem = existing.sectionId
+      ? noteSections().find((s) => s.id === existing.sectionId)
+      : undefined;
+    const suggested = sectionItem
+      ? `Note on section ${sectionItem.number}`
+      : undefined;
     const next: NoteDraft = {
       key: existing.id,
       id: existing.id,
+      title: existing.title,
       sectionId: existing.sectionId,
       instrumentId: existing.instrumentId,
+      suggestedTitle: suggested,
       body: existing.body,
     };
     draftRef.current = next;
@@ -127,6 +143,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
     const next: NoteDraft = {
       key: `solo-${elapsedNow()}`,
       id: null,
+      title: null,
       sectionId: null,
       instrumentId: null,
       body: '',
@@ -136,7 +153,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const onCommit = useCallback(
-    async (id: string | null, body: string) => {
+    async (id: string | null, title: string | null, body: string) => {
       const db = database();
       const current = draftRef.current;
       if (!db || !current) return null;
@@ -144,11 +161,12 @@ export function NotesProvider({ children }: { children: ReactNode }) {
         id,
         sectionId: current.sectionId,
         instrumentId: current.instrumentId,
+        title,
         body,
         now: isoNow(),
       });
       if (!saved) return null;
-      draftRef.current = { ...current, id: saved.id };
+      draftRef.current = { ...current, id: saved.id, title: saved.title };
       await refresh();
       notifyNotesChanged();
       return saved.id;
@@ -157,7 +175,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
   );
 
   const onDismiss = useCallback(
-    async (id: string | null, body: string) => {
+    async (id: string | null, title: string | null, body: string) => {
       const db = database();
       const current = draftRef.current;
       draftRef.current = null;
@@ -167,6 +185,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
         id,
         sectionId: current.sectionId,
         instrumentId: current.instrumentId,
+        title,
         body,
         now: isoNow(),
       });
@@ -218,10 +237,12 @@ export function NotesProvider({ children }: { children: ReactNode }) {
     <NotesContext.Provider value={value}>
       {children}
       {draft ? (
-        <NoteSheet
+        <NamedNoteSheet
           key={draft.key}
           noteId={draft.id}
+          initialTitle={draft.title}
           initialBody={draft.body}
+          suggestedTitle={draft.suggestedTitle}
           onCommit={onCommit}
           onDismiss={onDismiss}
           onDelete={onDelete}
