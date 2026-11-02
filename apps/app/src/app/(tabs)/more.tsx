@@ -38,13 +38,13 @@ export default function MoreScreen() {
         {
           label: 'Crimes & Penalties Directory',
           subtitle: 'Search offences, jail terms, and bail eligibility',
-          route: '/scenario?q=Crimes%20and%20penalties' as Href,
+          route: '/crimes' as Href,
           icon: '⚖️',
         },
         {
           label: 'Know Your Law Trivia',
           subtitle: 'Test your legal knowledge and civic rights',
-          route: '/scenario?q=Daily%20trivia%20challenge' as Href,
+          route: '/trivia/all' as Href,
           icon: '🏆',
         },
       ],

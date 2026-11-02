@@ -4,6 +4,7 @@ import {
   completeHostedScenario,
   retryHostedProvision,
   type ModelProvider,
+  type ProxyLog,
 } from './hosted-complete';
 import { countsAsRequest, QuotaBook } from './quota';
 import { citationRemovedLimit, validateCitations } from './validate-citations';
@@ -57,7 +58,7 @@ function request(
 describe('hosted provision', () => {
   it('calls the provider for a known section and skips an unknown id', async () => {
     const calls: string[] = [];
-    const logs: { status: number; tokens: number }[] = [];
+    const logs: ProxyLog[] = [];
     const known = await completeHostedProvision(request(), {
       loadSection: (id) => (id === section.id ? section : null),
       provider: provider(validBody(), calls),
@@ -145,7 +146,7 @@ describe('hosted provision', () => {
   });
 
   it('keeps the question out of the proxy log', async () => {
-    const logs: { status: number; tokens: number }[] = [];
+    const logs: ProxyLog[] = [];
     await completeHostedProvision(
       request([{ role: 'user', content: 'orchid-secret-phrase' }]),
       {
@@ -328,7 +329,9 @@ describe('hosted scenario', () => {
       lane: 'free' as const,
       contentVersion: section.contentVersion,
       sectionIds: [section.id],
-      messages: [{ role: 'user', content: 'A person was held overnight.' }],
+      messages: [
+        { role: 'user' as const, content: 'A person was held overnight.' },
+      ],
       now,
     };
     expect(

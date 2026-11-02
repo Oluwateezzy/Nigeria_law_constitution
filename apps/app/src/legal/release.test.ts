@@ -8,7 +8,7 @@ describe('phone release', () => {
     const launch = readFileSync('maestro/launch.yaml', 'utf8');
     expect(launchRequiresAccount).toBe(false);
     expect(launch).toContain('assertNotVisible: Sign in');
-    expect(launch).toContain('Nigeria Constitution and Law');
+    expect(launch).toContain('What Does The Law Say');
     const instrument = shippingInstrument();
     expect(instrument.contentVersion.length).toBeGreaterThan(0);
     expect(instrument.legalTextHash).toHaveLength(64);

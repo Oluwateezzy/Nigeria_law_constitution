@@ -1,5 +1,5 @@
 appId: com.nigerialaw.reader.local
 ---
 - launchApp
-- assertVisible: Nigeria Constitution and Law
+- assertVisible: What Does The Law Say
 - assertNotVisible: Sign in

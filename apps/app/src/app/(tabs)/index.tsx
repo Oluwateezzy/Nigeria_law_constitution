@@ -102,7 +102,7 @@ export default function HomeScreen() {
       icon: '⚖️',
       title: 'Crimes',
       subtitle: 'Bail & jail times',
-      route: '/more' as Href,
+      route: '/crimes' as Href,
       badge: 'DIRECTORY',
     },
     {
@@ -110,7 +110,7 @@ export default function HomeScreen() {
       icon: '🏆',
       title: 'Trivia',
       subtitle: 'Know your law',
-      route: '/explore' as Href,
+      route: '/trivia/all' as Href,
       badge: 'DAILY QUIZ',
     },
     {
@@ -120,6 +120,27 @@ export default function HomeScreen() {
       subtitle: 'Saved sections',
       route: '/notes' as Href,
       badge: 'LIBRARY',
+    },
+  ];
+
+  const recentDiscussions = [
+    {
+      id: '1',
+      title: 'Police Powers to Search Mobile Phones at Checkpoints',
+      tag: 'POLICE ACT 2020 §66',
+      replies: '24 replies',
+    },
+    {
+      id: '2',
+      title: 'Tenant Eviction Timelines Under Lagos Tenancy Law',
+      tag: 'TENANCY LAW 2011 §13',
+      replies: '15 replies',
+    },
+    {
+      id: '3',
+      title: 'Admissibility of WhatsApp Chats in Evidence',
+      tag: 'EVIDENCE ACT 2011 §84',
+      replies: '38 replies',
     },
   ];
 
@@ -297,42 +318,47 @@ export default function HomeScreen() {
                 <SkeletonLoader height={80} borderRadius={radius.card} />
               </View>
             ) : (
-              <PressableCard
-                onPress={() => router.push('/discuss' as Href)}
-                accessibilityLabel="Legal Community Discussions"
-                elevationLevel={1}
-                style={styles.communityCard}
-                contentStyle={styles.communityContent}
-              >
-                <View
-                  style={[
-                    styles.communityIconWrap,
-                    { backgroundColor: colors.primarySoft },
-                  ]}
-                >
-                  <Text style={styles.communityIcon}>💬</Text>
-                </View>
-                <View style={styles.communityText}>
-                  <View style={styles.discussionMeta}>
-                    <Text
-                      style={[styles.discussionTag, { color: colors.primary }]}
-                    >
-                      POLICE ACT 2020 §66
-                    </Text>
-                    <Text
-                      style={[styles.discussionTime, { color: colors.inkMuted }]}
-                    >
-                      24 replies
-                    </Text>
-                  </View>
-                  <Text
-                    style={[styles.communityTitle, { color: colors.ink }]}
-                    numberOfLines={2}
+              <View style={{ gap: space.sm }}>
+                {recentDiscussions.map((discussion) => (
+                  <PressableCard
+                    key={discussion.id}
+                    onPress={() => router.push('/discuss' as Href)}
+                    accessibilityLabel={discussion.title}
+                    elevationLevel={1}
+                    style={styles.communityCard}
+                    contentStyle={styles.communityContent}
                   >
-                    Police Powers to Search Mobile Phones at Checkpoints
-                  </Text>
-                </View>
-              </PressableCard>
+                    <View
+                      style={[
+                        styles.communityIconWrap,
+                        { backgroundColor: colors.primarySoft },
+                      ]}
+                    >
+                      <Text style={styles.communityIcon}>💬</Text>
+                    </View>
+                    <View style={styles.communityText}>
+                      <View style={styles.discussionMeta}>
+                        <Text
+                          style={[styles.discussionTag, { color: colors.primary }]}
+                        >
+                          {discussion.tag}
+                        </Text>
+                        <Text
+                          style={[styles.discussionTime, { color: colors.inkMuted }]}
+                        >
+                          {discussion.replies}
+                        </Text>
+                      </View>
+                      <Text
+                        style={[styles.communityTitle, { color: colors.ink }]}
+                        numberOfLines={2}
+                      >
+                        {discussion.title}
+                      </Text>
+                    </View>
+                  </PressableCard>
+                ))}
+              </View>
             )}
           </View>
         </FadeUp>

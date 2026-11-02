@@ -1,0 +1,13 @@
+appId: com.nigerialaw.reader.local
+---
+- launchApp
+- tapOn: Describe your situation
+- inputText: The court denied a fair hearing
+- tapOn: Explain →
+- assertVisible: What Does The Law Say
+- tapOn:
+    text: Continue
+    optional: true
+- tapOn: Explain
+- tapOn: Open
+- assertVisible: Right to fair hearing

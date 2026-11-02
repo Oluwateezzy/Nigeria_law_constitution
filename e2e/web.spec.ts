@@ -11,7 +11,7 @@ test('a shared section URL renders that section', async ({ page }) => {
     page.getByRole('heading', { name: 'Supremacy of the Constitution' }),
   ).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'Nigeria Constitution and Law' }),
+    page.getByRole('heading', { name: 'What Does The Law Say' }),
   ).toHaveCount(0);
   expect(page.url()).toContain('/read/cfrn-1999/s/1');
 });
@@ -30,7 +30,7 @@ test('refresh keeps the section and a bad id offers the Library', async ({
   ).toBeVisible();
   await page.getByRole('button', { name: 'Library' }).first().click();
   await expect(
-    page.getByRole('heading', { name: 'Nigeria Constitution and Law' }),
+    page.getByRole('heading', { name: 'What Does The Law Say' }),
   ).toBeVisible();
 });
 
@@ -91,7 +91,7 @@ test('the provision column stays within 68 characters', async ({ page }) => {
 test('launch has no account wall', async ({ page }) => {
   await page.goto('/');
   await expect(
-    page.getByRole('heading', { name: 'Nigeria Constitution and Law' }),
+    page.getByRole('heading', { name: 'What Does The Law Say' }),
   ).toBeVisible();
   await expect(page.getByText('Sign in', { exact: false })).toHaveCount(0);
 });
@@ -169,7 +169,7 @@ test('the own-key warning is visible in the browser', async ({ page }) => {
 test('focus outlines are visible', async ({ page }) => {
   await page.goto('/');
   await expect(
-    page.getByRole('heading', { name: 'Nigeria Constitution and Law' }),
+    page.getByRole('heading', { name: 'What Does The Law Say' }),
   ).toBeVisible();
   await page.keyboard.press('Tab');
   const outline = await page.evaluate(() => {

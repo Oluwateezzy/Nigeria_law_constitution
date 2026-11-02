@@ -41,13 +41,13 @@ describe('mergeByUpdatedAt', () => {
       ...base,
       body: 'edited later',
       updatedAt: '2026-10-25T12:00:00.000Z',
-      deletedAt: null,
+      deletedAt: null as string | null,
     };
     const remote = {
       ...base,
       body: 'old',
       updatedAt: '2026-10-25T09:00:00.000Z',
-      deletedAt: '2026-10-25T09:00:00.000Z',
+      deletedAt: '2026-10-25T09:00:00.000Z' as string | null,
     };
     const merged = mergeByUpdatedAt(local, remote);
     expect(merged.body).toBe('edited later');
